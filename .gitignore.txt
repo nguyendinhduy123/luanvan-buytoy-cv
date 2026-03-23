@@ -1,0 +1,5 @@
+.env
+.gitignore
+bin/
+obj/
+appsettings.Development.json
