@@ -1,0 +1,212 @@
+﻿@{
+    ViewData["Title"] = "Quản lý địa chỉ giao hàng";
+}
+
+<h3 class="text-center mb-4">Thêm địa chỉ giao hàng</h3>
+
+<div class="container mb-5">
+    <form method="post" class="row g-3">
+        <div class="col-md-4">
+            <label for="tinh" class="form-label">Tỉnh/Thành phố</label>
+            <select class="form-select" id="tinh" name="Tinh" required>
+                <option value="">-- Chọn Tỉnh/Thành --</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="quan" class="form-label">Quận/Huyện</label>
+            <select class="form-select" id="quan" name="Quan" required>
+                <option value="">-- Chọn Quận/Huyện --</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="phuong" class="form-label">Phường/Xã</label>
+            <select class="form-select" id="phuong" name="Phuong" required>
+                <option value="">-- Chọn Phường/Xã --</option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label for="price-shipping" class="form-label">Phí vận chuyển (VNĐ)</label>
+            <input type="number" class="form-control" id="price-shipping" name="Price" placeholder="Nhập phí vận chuyển (VD: 50000)" required />
+        </div>
+
+        <div class="col-12 text-center">
+            <button type="button" class="btn btn-primary btn-add-shipping">
+                <i class="fa fa-save me-1"></i> Lưu địa chỉ vận chuyển
+            </button>
+        </div>
+    </form>
+</div>
+
+<hr />
+
+<div class="container">
+    <h4 class="mb-3 text-center">Danh sách địa chỉ vận chuyển</h4>
+
+    <table class="table table-striped text-center" id="myTable">
+        <thead class="table-dark">
+            <tr>
+                <th class="text-center">Tỉnh/Thành phố</th>
+                <th class="text-center">Quận/Huyện</th>
+                <th class="text-center">Phường/Xã</th>
+                <th class="text-center">Phí vận chuyển</th>
+                <th class="text-center">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (ViewBag.Shippings == null || ViewBag.Shippings.Count == 0)
+            {
+                <tr>
+                    <td colspan="5" class="text-center">Chưa có địa chỉ vận chuyển nào.</td>
+                </tr>
+            }
+            else
+            {
+                foreach (var shipping in ViewBag.Shippings)
+                {
+                    <tr>
+                        <td class="text-center">@shipping.City</td>
+                        <td class="text-center">@shipping.District</td>
+                        <td class="text-center">@shipping.Ward</td>
+                        <td class="text-center">@shipping.Price.ToString("#,##0 VNĐ")</td>
+                        <td class="text-center">
+                            <a href="@Url.Action("Delete", "Shipping", new { id = shipping.Id })" class="btn btn-danger btn-sm">
+                                <i class="fa fa-trash me-1"></i> Xóa
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- DataTables & Export -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+
+    <script>
+        $(document).ready(function () {
+            // DataTable
+            if ($.fn.DataTable.isDataTable('#myTable')) {
+                $('#myTable').DataTable().destroy();
+            }
+
+            $('#myTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: ['copy', 'excel', 'pdf', 'print'],
+                language: {
+                    search: "Tìm kiếm:",
+                    lengthMenu: "Hiển thị _MENU_ dòng",
+                    info: "Hiển thị _START_ đến _END_ trong tổng _TOTAL_ dòng",
+                    paginate: {
+                        first: "Đầu",
+                        last: "Cuối",
+                        next: "Sau",
+                        previous: "Trước"
+                    },
+                    zeroRecords: "Không tìm thấy kết quả"
+                }
+            });
+
+            // Load tỉnh/thành
+            $.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm', function (data) {
+                if (data.error === 0) {
+                    $.each(data.data, function (i, item) {
+                        $('#tinh').append(`<option value="${item.full_name}" data-id="${item.id}">${item.full_name}</option>`);
+                    });
+
+                    $('#tinh').change(function () {
+                        const idTinh = $(this).find(':selected').data('id');
+                        $('#quan').html('<option value="">-- Chọn Quận/Huyện --</option>');
+                        $('#phuong').html('<option value="">-- Chọn Phường/Xã --</option>');
+
+                        $.getJSON(`https://esgoo.net/api-tinhthanh/2/${idTinh}.htm`, function (dataQH) {
+                            if (dataQH.error === 0) {
+                                $.each(dataQH.data, function (i, itemQH) {
+                                    $('#quan').append(`<option value="${itemQH.full_name}" data-id="${itemQH.id}">${itemQH.full_name}</option>`);
+                                });
+
+                                $('#quan').change(function () {
+                                    const idQuan = $(this).find(':selected').data('id');
+                                    $('#phuong').html('<option value="">-- Chọn Phường/Xã --</option>');
+
+                                    $.getJSON(`https://esgoo.net/api-tinhthanh/3/${idQuan}.htm`, function (dataPX) {
+                                        if (dataPX.error === 0) {
+                                            $.each(dataPX.data, function (i, itemPX) {
+                                                $('#phuong').append(`<option value="${itemPX.full_name}">${itemPX.full_name}</option>`);
+                                            });
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    });
+                }
+            });
+
+            // Thêm shipping
+            $(".btn-add-shipping").click(function () {
+                const tinh = $("#tinh").val();
+                const quan = $("#quan").val();
+                const phuong = $("#phuong").val();
+                const price = $("#price-shipping").val();
+
+                if (!tinh) {
+                    Swal.fire("Vui lòng chọn Tỉnh/Thành phố.");
+                    return;
+                }
+                if (!quan) {
+                    Swal.fire("Vui lòng chọn Quận/Huyện.");
+                    return;
+                }
+                if (!phuong) {
+                    Swal.fire("Vui lòng chọn Phường/Xã.");
+                    return;
+                }
+                if (!price) {
+                    Swal.fire("Vui lòng nhập phí vận chuyển.");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("StoreShipping", "Shipping")",
+                    data: { tinh: tinh, quan: quan, phuong: phuong, price: price },
+                    success: function (result) {
+                        if (result.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                text: 'Đã thêm địa chỉ vận chuyển.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else if (result.duplicate) {
+                            Swal.fire("Địa chỉ vận chuyển đã tồn tại.");
+                        }
+                    },
+                    error: function () {
+                        Swal.fire("Lỗi khi thêm địa chỉ.");
+                    }
+                });
+            });
+        });
+    </script>
+}

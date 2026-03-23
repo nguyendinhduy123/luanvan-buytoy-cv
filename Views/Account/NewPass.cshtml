@@ -1,0 +1,76 @@
+﻿@model AppUserModel
+@{
+    ViewData["Title"] = "Đặt lại mật khẩu";
+}
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow rounded-4 border-0">
+                    <div class="card-body p-4">
+                        <h3 class="text-center mb-4 text-primary">Đặt lại mật khẩu</h3>
+
+                        <form asp-action="UpdateNewPassword" asp-controller="Account" method="post" novalidate>
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                            <input type="hidden" name="Email" value="@ViewBag.Email" />
+                            <input type="hidden" name="Token" value="@ViewBag.Token" />
+
+                            <div class="mb-3">
+                                <label for="Password" class="form-label fw-semibold">Mật khẩu mới</label>
+                                <input type="password" name="PasswordHash" class="form-control rounded-3 shadow-sm" required />
+                                <span asp-validation-for="PasswordHash" class="text-danger small"></span>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success rounded-pill shadow">
+                                    <i class="fa fa-lock me-1"></i> Xác nhận đặt lại mật khẩu
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <a asp-action="Login" asp-controller="Account" class="text-decoration-none small text-muted">
+                                <i class="fa fa-arrow-left"></i> Quay lại đăng nhập
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            @if (TempData["error"] != null)
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: @Html.Raw(Json.Serialize(TempData["error"])),
+                        confirmButtonText: 'Đóng'
+                    });
+                </text>
+            }
+
+            @if (TempData["success"] != null)
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: @Html.Raw(Json.Serialize(TempData["success"])),
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                </text>
+            }
+        });
+    </script>
+}

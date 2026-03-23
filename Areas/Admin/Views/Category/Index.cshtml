@@ -1,0 +1,104 @@
+﻿@model IEnumerable<CategoryModel>
+
+@{
+    ViewData["Title"] = "Danh sách danh mục";
+
+    Paginate pager = new Paginate();
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+        pageNo = pager.CurrentPage;
+    }
+}
+
+<h3 class="mb-4">Danh sách danh mục</h3>
+
+<a class="btn btn-primary mb-3" asp-action="Create" asp-controller="Category">Thêm danh mục</a>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover text-center align-middle" id="myTable">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tên danh mục</th>
+                <th>Hình ảnh</th>
+                <th>Mô tả</th>
+                <th>Slug</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.Image))
+                        {
+                            <img src="~/media/categories/@item.Image" asp-append-version="true"
+                                 alt="@item.Name" width="50" height="50" style="object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">Không có ảnh</span>
+                        }
+                    </td>
+                    <td>@Html.Raw(item.Description)</td>
+                    <td>@item.Slug</td>
+                    <td>
+                        @if (item.Status == 1)
+                        {
+                            <span class="text-success">Hiển thị</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">Ẩn</span>
+                        }
+                    </td>
+                    <td>
+                        <a class="btn btn-warning btn-sm" asp-action="Edit" asp-controller="Category" asp-route-Id="@item.Id">Sửa</a>
+
+                        <form asp-action="Delete" asp-controller="Category" method="post" class="d-inline delete-form">
+                            <input type="hidden" name="Id" value="@item.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm confirmDeletion">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<partial name="_paging" model="@pager" />
+
+<!-- Thêm thư viện SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.querySelectorAll('.confirmDeletion').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault(); // Ngăn form submit ngay
+
+            const form = this.closest('form');
+
+            Swal.fire({
+                title: 'Bạn có chắc muốn xóa?',
+                text: "Hành động này không thể hoàn tác!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // Gửi form nếu xác nhận
+                }
+            });
+        });
+    });
+</script>

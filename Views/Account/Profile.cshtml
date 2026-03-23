@@ -1,0 +1,48 @@
+﻿@model AppUserModel
+@{
+    ViewData["Title"] = "Thông tin cá nhân";
+}
+
+<div class="container py-4">
+    <h2 class="mb-4"><i class="fas fa-user-circle me-2"></i>Thông tin cá nhân</h2>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="text-center">
+                <img src="@(!string.IsNullOrEmpty(Model.Avatar) ? Url.Content(Model.Avatar) : "/images/default-avatar.png")"
+                     alt="Avatar" class="img-thumbnail rounded-circle mb-3" style="width: 180px; height: 180px; object-fit: cover;" />
+
+                <form asp-action="UpdateAvatar" asp-controller="Account" method="post" enctype="multipart/form-data">
+                    <input type="file" name="avatarFile" accept="image/*" class="form-control mb-2" />
+                    <button type="submit" class="btn btn-success btn-sm">Cập nhật avatar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <table class="table table-bordered">
+                <tr>
+                    <th>Họ tên:</th>
+                    <td>@Model.FirstName @Model.LastName</td>
+                </tr>
+                <tr>
+                    <th>Email:</th>
+                    <td>@Model.Email</td>
+                </tr>
+                <tr>
+                    <th>Số điện thoại:</th>
+                    <td>@Model.PhoneNumber</td>
+                </tr>
+                <tr>
+                    <th>Tên đăng nhập:</th>
+                    <td>@Model.UserName</td>
+                </tr>
+                <tr>
+                    <th>Ngày đăng ký:</th>
+                    <td>@Model.CreatedDate?.ToString("dd/MM/yyyy")</td>
+                </tr>
+            </table>
+            <a class="btn btn-outline-primary" asp-action="UpdateAccount">Cập nhật thông tin</a>
+        </div>
+    </div>
+</div>

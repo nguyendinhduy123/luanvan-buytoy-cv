@@ -1,0 +1,57 @@
+﻿@model buytoy.Models.SupplierModel
+@{
+    ViewData["Title"] = "Sửa nhà cung cấp";
+}
+
+<!-- Bootstrap + SweetAlert2 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container py-4">
+    <h3 class="text-primary mb-4">Sửa thông tin nhà cung cấp</h3>
+
+    <form asp-action="Edit" method="post">
+        <input asp-for="Id" type="hidden" />
+
+        <div class="mb-3">
+            <label class="form-label">Tên nhà cung cấp</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Liên hệ</label>
+            <input asp-for="Contact" class="form-control" />
+            <span asp-validation-for="Contact" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Địa chỉ</label>
+            <input asp-for="Address" class="form-control" />
+            <span asp-validation-for="Address" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-warning text-white">Cập nhật</button>
+            <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </form>
+</div>
+
+<!-- SweetAlert2 Thông báo cập nhật thành công (nếu có TempData["Success"]) -->
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        @if (TempData["Success"] != null)
+        {
+                <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: '@TempData["Success"]',
+                        confirmButtonText: 'Đóng'
+                    });
+                </text>
+        }
+    </script>
+}

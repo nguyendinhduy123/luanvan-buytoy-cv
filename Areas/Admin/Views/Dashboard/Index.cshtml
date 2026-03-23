@@ -1,0 +1,383 @@
+﻿@model StatisticalModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+</head>
+<body>
+    <div class="container py-4">
+        <h3 class="mb-4 text-primary">Thống kê tổng quan</h3>
+        <button id="btnSyncStat" class="btn btn-danger mb-3">Đồng bộ dữ liệu thống kê</button>
+
+        <!-- Thống kê nhanh -->
+        <div class="row text-center mb-4">
+            @foreach (var stat in new[] {
+                        ("Sản phẩm", ViewBag.CountProduct, "info"),
+                        ("Đơn hàng", ViewBag.CountOrder, "success"),
+                        ("Danh mục", ViewBag.CountCategory, "warning"),
+                        ("Người dùng", ViewBag.CountUser, "primary")
+                        })
+            {
+                <div class="col-md-3">
+                    <div class="card-summary bg-@stat.Item3-subtle border border-@stat.Item3">
+                        <div class="stat-label">@stat.Item1</div>
+                        <div class="stat-value">@stat.Item2</div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Bộ lọc thời gian -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Lọc nhanh theo thời gian:</label>
+                <select id="filterRange" class="form-select">
+                    <option value="all">---Lọc thời gian---</option>
+                    <option value="7days" selected>7 ngày trước</option>
+                    <option value="1month">1 tháng qua</option>
+                    <option value="3months">3 tháng trước</option>
+                    <option value="1year">1 năm</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label class="form-label">Từ ngày:</label>
+                <input type="text" id="startDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Đến ngày:</label>
+                <input type="text" id="endDate" class="form-control" />
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button id="btnCustomFilter" class="btn btn-outline-primary w-100">Lọc theo ngày</button>
+            </div>
+        </div>
+        <!-- Tổng doanh thu -->
+        <div class="alert alert-success">
+            <strong>Tổng doanh thu:</strong> @String.Format("{0:N0} ₫", ViewBag.TotalRevenue)
+        </div>
+        <!-- Tổng sản phẩm tồn kho -->
+        @* <div class="card text-center shadow p-3 mb-4 bg-body rounded">
+            <h5 class="card-title">Tổng số lượng tồn kho</h5>
+            <h2 class="text-success">@ViewBag.TotalStock</h2>
+        </div>
+        <!-- Tổng sản phẩm -->
+        <div class="card text-center shadow p-3 mb-4 bg-body rounded">
+            <h5 class="card-title">Tổng số sản phẩm</h5>
+            <h2 class="text-primary">@ViewBag.CountProduct</h2>
+        </div> *@
+        <!-- Biểu đồ doanh thu -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h5>Biểu đồ thống kê doanh thu</h5>
+                <div id="myfirstchart" style="height: 300px;"></div>
+                <div id="loading" class="text-muted mt-2" style="display:none;">Đang tải dữ liệu...</div>
+            </div>
+        </div>
+
+        <!-- Bảng thống kê -->
+        <h5>Bảng dữ liệu xuất Excel / PDF / In</h5>
+        <table id="statisticalTable" class="display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Đơn hàng</th>
+                    <th>Số lượng</th>
+                    <th>Doanh thu</th>
+                    <th>Lợi nhuận</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.ChartData)
+                {
+                    <tr>
+                        <td>@item.date</td>
+                        <td>@item.sold</td>
+                        <td>@item.quantity</td>
+                        <td>@item.revenue.ToString("N0") ₫</td>
+                        <td>@item.profit.ToString("N0") ₫</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Top sản phẩm -->
+        <h5 class="mt-5">Top 10 đồ chơi có giá cao nhất</h5>
+       <table class="table table-bordered table-striped table-hover shadow-sm rounded mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int stt = 1;
+                }
+                @foreach (var toy in ViewBag.TopExpensiveToys)
+                {
+                    <tr>
+                        <td>@stt</td>
+                        <td>@toy.ProductName</td>
+                        <td>@String.Format("{0:N0} ₫", toy.Price)</td>
+                    </tr>
+                    stt++;
+                }
+            </tbody>
+        </table>
+
+       
+
+        <!-- Top khách hàng -->
+        @* <h4 class="mt-4">Top 5 Khách hàng chi tiêu nhiều nhất</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Email</th>
+                    <th>Tên khách</th>
+                    <th>Tổng chi tiêu</th>
+                    <th>Số đơn hàng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.TopCustomers != null)
+                {
+                    int stt1 = 1;
+                    foreach (var item in ViewBag.TopCustomers)
+                    {
+                        <tr>
+                            <td>@stt1</td>
+                            <td>@item.UserName</td>
+                            <td>@item.Email</td>
+                            <td>@string.Format("{0:N0}₫", item.TotalSpent)</td>
+                            <td>@item.OrderCount</td>
+                        </tr>
+                        stt++;
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="5">Không có dữ liệu</td></tr>
+                }
+            </tbody>
+        </table> *@
+        <h5 class="mt-4 text-danger">Kiểm kê sản phẩm</h5>
+        <table class="table table-bordered table-striped mt-2">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th>Giá</th>
+                    <th>Kho</th>
+                    <th>Đã bán</th>
+                    <th>Trạng thái</th>
+                    @* <th>Ngày tạo</th> *@
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.AllProducts != null)
+                {
+                    int index = 1;
+                    foreach (var item in ViewBag.AllProducts)
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td>@item.Name</td>
+                            <td>@item.CategoryName</td>
+                            <td>@item.Price.ToString("N0") ₫</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.Sold</td>
+                            <td>
+                                @if (item.Status == "Hết hàng")
+                                {
+                                    <span class="badge bg-danger">@item.Status</span>
+                                }
+                                else if (item.Status == "Sắp hết hàng")
+                                {
+                                    <span class="badge bg-warning text-dark">@item.Status</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">@item.Status</span>
+                                }
+                            </td>
+                    @* <td>
+                        @(item.CreatedDate != null && item.CreatedDate != DateTime.MinValue
+                                                ? item.CreatedDate.Value.ToString("dd/MM/yyyy")
+                                                : "Chưa cập nhật")
+                    </td> *@
+
+                        </tr>
+                        index++;
+                    }
+                }
+            </tbody>
+        </table>
+
+        <!-- Hết hàng -->
+        <h5 class="mt-4 text-danger">Sản phẩm sắp hết hàng</h5>
+        <table class="table table-bordered table-striped table-hover shadow-sm rounded mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Số lượng còn</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int stt2 = 1;
+                }
+                @foreach (var p in ViewBag.LowStockProducts)
+                {
+                    <tr>
+                        <td>@stt2</td>
+                        <td>@p.Name</td>
+                        <td class="text-danger fw-bold">@p.Quantity</td>
+                    </tr>
+                    stt2++;
+                }
+            </tbody>
+        </table>
+
+        
+    </div>
+    <script>
+        flatpickr("#startDate", { dateFormat: "Y-m-d" });
+        flatpickr("#endDate", { dateFormat: "Y-m-d" });
+
+        var ChartMorris;
+
+        function loadChartData(filterRange) {
+            $('#loading').show();
+            $.ajax({
+                url: '@Url.Action("GetChartData", "Dashboard")',
+                type: 'POST', dataType: 'json',
+                data: { filterRange: filterRange },
+                success: function (data) {
+                    var chartData = data.map(item => ({
+                        date: item.date,
+                        sold: item.sold,
+                        quantity: item.quantity,
+                        revenue: item.revenue,
+                        profit: item.profit
+                    }));
+                    ChartMorris.setData(chartData);
+                    $('#loading').hide();
+                },
+                error: function () {
+                    $('#loading').hide();
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            ChartMorris = new Morris.Line({
+                element: 'myfirstchart',
+                data: @Html.Raw(Json.Serialize(ViewBag.ChartData)),
+                xkey: 'date',
+                ykeys: ['sold', 'quantity', 'revenue', 'profit'],
+                labels: ['Đơn hàng', 'Số lượng', 'Doanh thu', 'Lợi nhuận'],
+                parseTime: false,
+                lineColors: ['#f75b5b', '#4da74d', '#007bff', '#ff9900']
+            });
+
+            $('#filterRange').on('change', function () {
+                loadChartData($(this).val());
+            });
+
+            $('#btnCustomFilter').on('click', function () {
+                const start = $('#startDate').val();
+                const end = $('#endDate').val();
+                if (!start || !end) return alert("Vui lòng chọn cả ngày bắt đầu và kết thúc.");
+                $.post('@Url.Action("GetChartDataBySelect", "Dashboard")',
+                    { startDate: start, endDate: end },
+                    function (data) {
+                        if (data.length === 0) {
+                            $('#myfirstchart').html('<div class="text-danger">Không có dữ liệu</div>');
+                            return;
+                        }
+                        ChartMorris.setData(data);
+                    });
+            });
+
+            $('#btnSyncStat').on('click', function () {
+                if (!confirm("Bạn có chắc muốn đồng bộ dữ liệu thống kê?")) return;
+                $.post('/Admin/Dashboard/SyncStatisticalData', function (res) {
+                    if (res.success) {
+                        alert("Đồng bộ thành công " + res.count + " bản ghi.");
+                        location.reload();
+                    } else alert("Lỗi khi đồng bộ.");
+                });
+            });
+
+            // DataTable export setup
+            $('#statisticalTable').DataTable({
+                dom: 'Bfrtip',
+                language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json' },
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Xuất Excel',
+                        title: 'Báo cáo doanh thu'
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: 'Xuất PDF',
+                        title: 'Báo cáo doanh thu',
+                        orientation: 'landscape',
+                        pageSize: 'A4',
+                        customize: function (doc) {
+                            doc.defaultStyle.font = 'Times';
+                            doc.styles.tableHeader.fillColor = '#0d6efd';
+                            doc.styles.tableHeader.color = '#fff';
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: 'In báo cáo',
+                        title: 'Báo cáo doanh thu',
+                        customize: function (win) {
+                            $(win.document.body).css('font-family', 'Times New Roman')
+                                .css('font-size', '14px')
+                                .css('color', '#000');
+                            $(win.document.body).find('table')
+                                .addClass('table table-bordered')
+                                .css('color', '#000');
+                            $(win.document.body).find('table thead tr')
+                                .css({ 'background-color': '#0d6efd', 'color': 'white' });
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+</body>
+</html>
+

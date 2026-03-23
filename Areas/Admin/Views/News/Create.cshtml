@@ -1,0 +1,35 @@
+﻿@model buytoy.Models.NewsModel
+@{
+    ViewData["Title"] = "Thêm tin tức";
+}
+
+<h2 class="mb-4 text-success">📝 Thêm tin tức mới</h2>
+
+<form asp-action="Create" method="post" class="card shadow p-4">
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label fw-semibold">Tiêu đề</label>
+        <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề tin tức..." />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Content" class="form-label fw-semibold">Nội dung</label>
+        <textarea asp-for="Content" class="form-control" rows="8" placeholder="Nhập nội dung chi tiết..."></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+        <button type="submit" class="btn btn-success">
+            <i class="fas fa-save"></i> Lưu tin tức
+        </button>
+    </div>
+</form>
+@section Scripts {
+    <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
+    <script>
+        CKEDITOR.replace('Content');
+    </script>
+}

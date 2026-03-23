@@ -1,0 +1,71 @@
+﻿@model BrandModel
+@{
+    ViewData["title"] = "Cập nhật thương hiệu";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow border-0">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Cập nhật thương hiệu</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Tên thương hiệu</label>
+                            <input asp-for="Name" class="form-control" placeholder="Nhập tên thương hiệu" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Mô tả chi tiết</label>
+                            <textarea asp-for="Description" class="form-control" placeholder="Nhập mô tả chi tiết" rows="4"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Ảnh thương hiệu</label>
+                            <input asp-for="ImageUpload" type="file" class="form-control" accept=".jpg,.jpeg,.png" />
+                            <span asp-validation-for="ImageUpload" class="text-danger small"></span>
+
+                            @if (!string.IsNullOrEmpty(Model.Image))
+                            {
+                                <div class="mt-2">
+                                    <img src="~/media/brands/@Model.Image" width="120" class="img-thumbnail" />
+                                </div>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Trạng thái</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="1">Hiển thị</option>
+                                <option value="0">Ẩn</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Trở về danh sách
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+}

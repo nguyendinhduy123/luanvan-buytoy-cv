@@ -1,0 +1,28 @@
+﻿@model buytoy.Models.SupplierModel
+@{
+    ViewData["Title"] = "Thêm nhà cung cấp";
+}
+<h3>Thêm nhà cung cấp mới</h3>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label class="form-label">Tên nhà cung cấp</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Liên hệ</label>
+        <input asp-for="Contact" class="form-control" />
+        <span asp-validation-for="Contact" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Địa chỉ</label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger small"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Lưu</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

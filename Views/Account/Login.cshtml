@@ -1,0 +1,127 @@
+﻿@model LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+<style>
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: #fff;
+        transition: 0.3s ease-in-out;
+    }
+</style>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow rounded-4 border-0">
+                    <div class="card-body p-4">
+                        <h3 class="text-center mb-4 text-primary">Đăng nhập tài khoản</h3>
+
+                        <form asp-action="Login" asp-controller="Account" novalidate id="loginForm">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none" role="alert"></div>
+
+                            <div class="mb-3">
+                                <label asp-for="Username" class="form-label fw-semibold">Tên đăng nhập</label>
+                                <input asp-for="Username" class="form-control rounded-3 shadow-sm" />
+                                <span asp-validation-for="Username" class="text-danger small d-none"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Password" class="form-label fw-semibold">Mật khẩu</label>
+                                <input asp-for="Password" class="form-control rounded-3 shadow-sm" type="password" />
+                                <span asp-validation-for="Password" class="text-danger small d-none"></span>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success rounded-pill shadow">
+                                    <i class="fa fa-sign-in-alt me-1"></i> Đăng nhập
+                                </button>
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <a href="/Account/LoginWithGoogle" class="btn btn-outline-danger rounded-pill shadow-sm">
+                                    <i class="fab fa-google me-1"></i> Đăng nhập bằng Google
+                                </a>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <a href="/Account/ForgotPass" class="btn btn-outline-secondary btn-sm rounded-pill shadow-sm px-4">
+                                <i class="fa fa-question-circle me-1"></i> Quên mật khẩu?
+                            </a>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="text-center">
+                            <span class="small text-muted">Chưa có tài khoản?</span>
+                            <a asp-action="Create" asp-controller="Account" class="btn btn-outline-primary btn-sm rounded-pill ms-2">
+                                <i class="fa fa-user-plus me-1"></i> Đăng ký
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // SweetAlert hiển thị từ TempData
+            @if (TempData["error"] != null)
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi đăng nhập',
+                        text: @Html.Raw(Json.Serialize(TempData["error"])),
+                        confirmButtonText: 'Đóng'
+                    });
+                </text>
+            }
+
+            @if (TempData["warning"] != null)
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Thiếu thông tin',
+                        text: @Html.Raw(Json.Serialize(TempData["warning"])),
+                        confirmButtonText: 'OK'
+                    });
+                </text>
+            }
+
+            @if (TempData["success"] != null)
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: @Html.Raw(Json.Serialize(TempData["success"])),
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                </text>
+            }
+
+            // Chỉ hiện lỗi sau khi submit form
+            const form = document.getElementById("loginForm");
+            form.addEventListener("submit", function () {
+                setTimeout(function () {
+                    document.querySelectorAll("span.field-validation-error").forEach(function (el) {
+                        el.classList.remove("d-none");
+                    });
+                    document.querySelectorAll("div.validation-summary-errors").forEach(function (el) {
+                        el.classList.remove("d-none");
+                    });
+                }, 100);
+            });
+        });
+    </script>
+}

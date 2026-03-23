@@ -1,0 +1,136 @@
+﻿@model List<buytoy.Models.ProductModel>
+@{
+    ViewData["Title"] = "Sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center my-4">DANH SÁCH SẢN PHẨM</h2>
+
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var product in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm rounded-4 border-0">
+                    <img src="~/media/products/@product.Image" class="card-img-top p-3" alt="@product.Name" style="height: 220px; object-fit: contain;" />
+                    <div class="card-body text-center">
+                        <h5 class="card-title">@product.Name</h5>
+
+                        @if (product.MaxAge <= 12)
+                        {
+                            <span class="badge bg-info">👶 Trẻ em</span>
+                        }
+                        else if (product.MinAge > 12)
+                        {
+                            <span class="badge bg-warning">🧑 Người lớn</span>
+                        }
+
+                        <p class="text-danger fw-bold">@product.Price.ToString("N0")₫</p>
+                    </div>
+                    <div class="card-footer bg-white text-center d-flex justify-content-center gap-2">
+                        <button class="btn btn-sm btn-success" onclick="addToCart(@product.Id)">🛒 Giỏ</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="addToWishlist(@product.Id)">❤️</button>Q
+                        <button class="btn btn-sm btn-outline-secondary" onclick="addToCompare(@product.Id)">🔍</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function addToCart(id) {
+            $.post("@Url.Action("Add", "Cart")", { Id: id })
+                .done(function () {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Đã thêm vào giỏ hàng!",
+                        text: "Sản phẩm đã được thêm thành công.",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                })
+                .fail(function () {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Lỗi!",
+                        text: "Không thể thêm sản phẩm vào giỏ hàng.",
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                });
+        }
+
+        function addToWishlist(id) {
+            try {
+                let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+                if (!wishlist.includes(id)) {
+                    wishlist.push(id);
+                    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+                    Swal.fire({
+                        icon: "success",
+                        title: "Yêu thích!",
+                        text: "Đã thêm vào danh sách yêu thích.",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "info",
+                        title: "Thông báo",
+                        text: "Sản phẩm đã có trong yêu thích!",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            } catch (e) {
+                console.error("Wishlist error:", e);
+                Swal.fire("Lỗi khi thêm vào yêu thích!");
+            }
+        }
+
+        function addToCompare(id) {
+            try {
+                let compare = JSON.parse(localStorage.getItem("compare")) || [];
+
+                if (!compare.includes(id)) {
+                    if (compare.length >= 3) {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Giới hạn!",
+                            text: "Chỉ được so sánh tối đa 3 sản phẩm.",
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        return;
+                    }
+
+                    compare.push(id);
+                    localStorage.setItem("compare", JSON.stringify(compare));
+                    Swal.fire({
+                        icon: "success",
+                        title: "Đã thêm!",
+                        text: "Sản phẩm đã được thêm vào so sánh.",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "info",
+                        title: "Thông báo",
+                        text: "Sản phẩm đã có trong so sánh!",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            } catch (e) {
+                console.error("Compare error:", e);
+                Swal.fire("Lỗi khi thêm vào so sánh!");
+            }
+        }
+    </script>
+}
+
+

@@ -1,0 +1,31 @@
+﻿@model List<buytoy.Models.NewsModel>
+
+@{
+    ViewData["Title"] = "Lưu trữ tin tức";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center text-secondary mb-4">🗂 Lưu trữ tin tức</h2>
+
+    @if (Model.Count == 0)
+    {
+        <p class="text-muted text-center">Không có tin cũ nào để hiển thị.</p>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-start border-3 border-warning">
+                        <div class="card-body">
+                            <h5 class="card-title text-warning fw-bold">@item.Title</h5>
+                            <div class="card-text">@Html.Raw(item.Content)</div>
+                            <p class="text-muted mt-2"><small>Ngày đăng: @item.CreatedAt.ToString("dd/MM/yyyy")</small></p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,77 @@
+﻿@model SliderModel
+
+@{
+    ViewData["Title"] = "Chỉnh sửa Slider";
+}
+
+<h3 class="mb-4">Chỉnh sửa Slider</h3>
+
+<div class="col-md-9">
+    <form asp-action="Edit" enctype="multipart/form-data">
+        @* Ẩn ID để giữ giá trị khi submit *@
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <!-- Tên slider -->
+        <div class="form-group">
+            <label>Tên slider</label>
+            <input asp-for="Name" class="form-control" placeholder="Nhập tên slider" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <!-- Mô tả -->
+        <div class="form-group">
+            <label>Mô tả</label>
+            <textarea asp-for="Description" class="form-control" placeholder="Nhập mô tả..."></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <!-- Ảnh slider -->
+        <div class="form-group">
+            <label>Ảnh hiện tại</label><br />
+            @if (!string.IsNullOrEmpty(Model.Image))
+            {
+                <img src="~/media/sliders/@Model.Image" style="max-height:200px;" />
+            }
+        </div>
+
+        <div class="form-group">
+            <label>Cập nhật ảnh mới (nếu muốn)</label>
+            <input asp-for="ImageUpload" class="form-control" accept=".jpg,.jpeg,.png" />
+            <span asp-validation-for="ImageUpload" class="text-danger"></span>
+            <img id="imgpreview" class="pt-2" style="max-height: 200px;" />
+        </div>
+
+        <!-- Trạng thái -->
+        <div class="form-group">
+            <label>Trạng thái</label>
+            <select asp-for="Status" class="form-control">
+                <option value="1" selected="@((Model.Status == 1))">Hiển thị</option>
+                <option value="0" selected="@((Model.Status == 0))">Ẩn</option>
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+
+        <!-- Nút submit -->
+        <div class="form-group mt-3">
+            <button class="btn btn-primary">Cập nhật Slider</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Hủy</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        // Xem trước ảnh mới nếu chọn
+        $("#ImageUpload").change(function () {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imgpreview').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(this.files[0]);
+        });
+    </script>
+}

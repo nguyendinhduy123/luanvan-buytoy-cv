@@ -1,0 +1,55 @@
+﻿@model IEnumerable<buytoy.Models.RatingModel>
+@{
+    ViewData["Title"] = "Quản lý đánh giá";
+}
+
+<h3 class="mb-4">Quản lý đánh giá sản phẩm</h3>
+
+<table id="myTable" class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Sản phẩm</th>
+            <th>Tên người dùng</th>
+            <th>Email</th>
+            <th>⭐ Đánh giá</th>
+            <th>Bình luận</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Product?.Name</td>
+                <td>@item.Name</td>
+                <td>@item.Email</td>
+                <td>@item.Star</td>
+                <td>@item.Comment</td>
+                <td>
+                    <form asp-action="Delete" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa đánh giá này không?')">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+               $(document).ready(function () {
+            // Khởi tạo nếu chưa được khởi tạo
+            if (!$.fn.DataTable.isDataTable('#myTable')) {
+                $('#myTable').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+                });
+            }
+        });
+
+    </script>
+}
+

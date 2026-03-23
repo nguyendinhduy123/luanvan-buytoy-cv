@@ -1,0 +1,34 @@
+﻿@model buytoy.Models.ImportReceiptModel
+@{
+    ViewData["Title"] = "Tạo phiếu nhập";
+}
+<h3>Tạo mới phiếu nhập hàng</h3>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="SupplierId" class="form-label">Chọn nhà cung cấp</label>
+        <select asp-for="SupplierId" class="form-select" asp-items="ViewBag.Suppliers"></select>
+        <span asp-validation-for="SupplierId" class="text-danger small"></span>
+    </div>
+
+   <div class="mb-3">
+    <label class="form-label">Ngày nhập</label>
+    <input asp-for="ImportDate" type="date" class="form-control" />
+    <span asp-validation-for="ImportDate" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Tổng tiền</label>
+    <input asp-for="TotalAmount" class="form-control" />
+    <span asp-validation-for="TotalAmount" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Ghi chú</label>
+    <textarea asp-for="Note" class="form-control"></textarea>
+    <span asp-validation-for="Note" class="text-danger small"></span>
+</div>
+
+    <button type="submit" class="btn btn-success">Lưu phiếu</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

@@ -1,0 +1,74 @@
+﻿@model AppUserModel
+@{
+    ViewData["Title"] = "Quên mật khẩu";
+}
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow rounded-4 border-0">
+                    <div class="card-body p-4">
+                        <h3 class="text-center mb-4 text-primary">Quên mật khẩu</h3>
+
+                        <form asp-action="SendMailForgotPass" asp-controller="Account" method="post" novalidate>
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label fw-semibold">Nhập email đã đăng ký</label>
+                                <input asp-for="Email" class="form-control rounded-3 shadow-sm" placeholder="example@email.com" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary rounded-pill shadow">
+                                    <i class="fa fa-paper-plane me-1"></i> Gửi yêu cầu đặt lại mật khẩu
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <a asp-action="Login" asp-controller="Account" class="text-decoration-none small text-muted">
+                                <i class="fa fa-arrow-left"></i> Quay lại đăng nhập
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            @if (TempData["error"] != null)
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: @Html.Raw(Json.Serialize(TempData["error"])),
+                        confirmButtonText: 'Đóng'
+                    });
+                </text>
+            }
+
+            @if (TempData["success"] != null)
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: @Html.Raw(Json.Serialize(TempData["success"])),
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                </text>
+            }
+        });
+    </script>
+}
+

@@ -1,0 +1,26 @@
+﻿@model List<buytoy.Models.NewsModel>
+
+@{
+    ViewData["Title"] = "Tin tức";
+}
+
+<div class="container my-5">
+    <h2 class="mb-4 text-success">📰 Tin tức mới nhất</h2>
+
+    @foreach (var item in Model)
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title text-success fw-bold">@item.Title</h5>
+                <div class="card-text">@Html.Raw(item.Content)</div>
+                <p class="text-muted mt-2"><small>@item.CreatedAt.ToString("dd/MM/yyyy")</small></p>
+            </div>
+        </div>
+    }
+    <div class="text-center mt-4">
+        <a class="btn btn-outline-secondary" asp-action="NewsArchive" asp-controller="Home">
+            🗂 Xem tin tức đã lưu trữ
+        </a>
+    </div>
+
+</div>

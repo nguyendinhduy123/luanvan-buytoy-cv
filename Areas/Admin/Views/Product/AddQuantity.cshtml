@@ -1,0 +1,97 @@
+﻿@model ProductQuantityModel
+@{
+    ViewData["Title"] = "Thêm số lượng sản phẩm";
+    decimal tongSoLuong = 0;
+    decimal stt = 1;
+}
+
+<h3 class="mb-4">Thêm số lượng sản phẩm</h3>
+
+<div class="col-md-8">
+    <form asp-action="UpdateMoreQuantity" asp-controller="Product" enctype="multipart/form-data" id="formQuantity">
+        <input type="hidden" name="ProductId" value="@ViewBag.ProductId" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label for="Quantity" class="form-label fw-semibold">Nhập số lượng cần thêm:</label>
+            <input type="number" min="1" value="1" asp-for="Quantity" class="form-control" />
+            <span asp-validation-for="Quantity" class="text-danger"></span>
+        </div>
+
+        <div class="mb-4">
+            <button type="submit" class="btn btn-success">Thêm số lượng</button>
+            <a asp-action="Index" asp-controller="Product" class="btn btn-secondary ms-2">Quay lại danh sách</a>
+        </div>
+    </form>
+
+    <h4 class="mb-3">Lịch sử số lượng đã thêm:</h4>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle text-center">
+            <thead class="table-success">
+                <tr>
+                    <th>STT</th>
+                    <th>Số lượng đã thêm</th>
+                    <th>Ngày thêm</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.ProductByQuantity)
+                {
+                    tongSoLuong += item.Quantity;
+                    <tr>
+                        <td>@stt</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.DateCreated</td>
+                    </tr>
+                    stt++;
+                }
+
+                <tr class="fw-bold bg-light">
+                    <td colspan="2" class="text-end">Tổng số lượng:</td>
+                    <td>@tongSoLuong</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.getElementById("formQuantity").addEventListener("submit", function (e) {
+            e.preventDefault(); // chặn form gửi ngay
+
+            const quantityInput = document.querySelector('input[name="Quantity"]');
+            const quantityValue = parseInt(quantityInput.value);
+
+            if (!quantityValue || quantityValue <= 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Số lượng không hợp lệ',
+                    text: 'Vui lòng nhập số lượng lớn hơn 0.',
+                    confirmButtonText: 'Đã hiểu'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Xác nhận thêm số lượng?',
+                text: `Bạn có chắc muốn thêm ${quantityValue} sản phẩm không?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    e.target.submit(); // xác nhận => gửi form
+                }
+            });
+        });
+    </script>
+}

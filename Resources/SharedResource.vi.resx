@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<root>
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"/>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, ...</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, ...</value>
+  </resheader>
+  <data name="Home" xml:space="preserve">
+    <value>Trang chủ</value>
+  </data>
+  <data name="Products" xml:space="preserve">
+    <value>Sản phẩm</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>Liên hệ</value>
+  </data>
+  <data name="Blog" xml:space="preserve">
+    <value>Bài viết</value>
+  </data>
+  <data name="Wishlist" xml:space="preserve">
+    <value>Yêu thích</value>
+  </data>
+  <data name="Compare" xml:space="preserve">
+    <value>So sánh</value>
+  </data>
+  <data name="Cart" xml:space="preserve">
+    <value>Giỏ hàng</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Ngôn ngữ</value>
+  </data>
+</root>

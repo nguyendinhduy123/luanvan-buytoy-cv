@@ -1,0 +1,33 @@
+﻿@model VnpayModel
+
+@{
+    ViewData["title"] = "Thông tin thanh toán MOMO";
+}
+
+<body>
+    <h3>Payment Momo Info</h3>
+    <a class="btn btn-primary" asp-action="Index" asp-controller="Order">Back to Orders</a>
+
+    <table class="table" id="myTable">
+        <thead>
+            <tr>
+                <th>Tran</th>
+                <th>OrderInfo</th>
+                <th>FullName</th>
+                <th>Amount</th>
+                <th>DatePaid</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Model.OrderId</td>
+                <td>@Model.OrderDescription</td>
+                <td>@Model.OrderId</td>
+                <td>@Model.PaymentMethod</td>
+                <td>@Model.PaymentId</td>
+                <td>@Model.DateCreated</td>
+            </tr>
+        </tbody>
+    </table>
+</body>

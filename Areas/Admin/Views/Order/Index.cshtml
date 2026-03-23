@@ -1,0 +1,124 @@
+﻿@model IEnumerable<OrderModel>
+
+@{
+    ViewData["Title"] = "Danh sách đơn hàng";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+    <div class="container-fluid py-4">
+        <h3 class="mb-4">Danh sách đơn hàng</h3>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center align-middle" id="myTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Mã đơn hàng</th>
+                        <th>Phí vận chuyển</th>
+                        <th>Mã giảm giá</th> 
+                        <th>Tên người đặt</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.OrderCode</td>
+                            <td>@item.ShippingCost.ToString("N0") VNĐ</td>
+                            <td>@item.CouponCode</td>
+                            <td>@item.UserName</td>
+                            <td>
+                                @if (item.Status == 1)
+                                {
+                                    <span class="text-success fw-bold">Đơn hàng mới</span>
+                                }
+                                else if (item.Status == 0)
+                                {
+                                    <span class="text-primary fw-bold">Đã xử lý</span>
+                                }
+                                else if (item.Status == 3)
+                                {
+                                    <span class="text-danger fw-bold">Đã hủy</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Không xác định</span>
+                                }
+                            </td>
+                            <td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <a class="btn btn-warning btn-sm" asp-action="ViewOrder" asp-controller="Order" asp-route-ordercode="@item.OrderCode">Xem</a>
+                                <button class="btn btn-danger btn-sm btn-delete" data-ordercode="@item.OrderCode">Xóa</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @* Hiển thị thông báo nếu có *@
+    @if (TempData["Success"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: '@TempData["Success"]'
+            });
+        </script>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: '@TempData["Error"]'
+            });
+        </script>
+    }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const deleteButtons = document.querySelectorAll(".btn-delete");
+
+            deleteButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    const orderCode = this.getAttribute("data-ordercode");
+
+                    Swal.fire({
+                        title: 'Xác nhận xóa',
+                        text: "Bạn có chắc muốn xóa đơn hàng này không?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Xóa',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = `/Order/Delete?ordercode=${orderCode}`;
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,138 @@
+﻿@model UserModel
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h2 class="text-center text-primary fw-bold mb-4">Đăng Ký</h2>
+                <form asp-action="Create" asp-controller="Account" method="post" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FirstName" class="form-label">Tên *</label>
+                            <input asp-for="FirstName" class="form-control" />
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="LastName" class="form-label">Họ *</label>
+                            <input asp-for="LastName" class="form-control" />
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PhoneNumber" class="form-label">Số điện thoại *</label>
+                        <input asp-for="PhoneNumber" class="form-control" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Gender" class="form-label">Giới tính *</label>
+                        <select asp-for="Gender" class="form-select">
+                            <option value="">Chọn</option>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                        <span asp-validation-for="Gender" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email *</label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label">Tên đăng nhập *</label>
+                        <input asp-for="Username" class="form-control" />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Password" class="form-label">Mật khẩu *</label>
+                            <input asp-for="Password" class="form-control" type="password" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ConfirmPassword" class="form-label">Nhập lại mật khẩu *</label>
+                            <input asp-for="ConfirmPassword" class="form-control" type="password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="AcceptPolicy" class="form-check-input" />
+                        <label class="form-check-label">
+                            Tôi đã đọc và đồng ý với <a asp-action="Terms" asp-controller="Home" class="text-decoration-underline" target="_blank">Điều khoản sử dụng</a> và
+                            <a asp-action="Privacy" asp-controller="Home" class="text-decoration-underline" target="_blank">Chính sách bảo mật</a>.
+                        </label>
+                        <span asp-validation-for="AcceptPolicy" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="ReceiveNews" class="form-check-input" />
+                        <label class="form-check-label">Nhận thông báo tin tức và ưu đãi</label>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-danger rounded-pill">Đăng ký</button>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <small>Đã có tài khoản? <a href="/Account/Login">Đăng nhập</a></small>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            @if (TempData["success"] != null)
+            {
+                    <text>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công!',
+                            text: @Html.Raw(Json.Serialize(TempData["success"])),
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    </text>
+            }
+            @if (TempData["warning"] != null)
+            {
+                    <text>
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Cảnh báo!',
+                            text: @Html.Raw(Json.Serialize(TempData["warning"])),
+                            confirmButtonText: 'OK'
+                        });
+                    </text>
+            }
+            @if (TempData["error"] != null)
+            {
+                    <text>
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: @Html.Raw(Json.Serialize(TempData["error"])),
+                            confirmButtonText: 'Đóng'
+                        });
+                    </text>
+            }
+        });
+    </script>
+}

@@ -1,0 +1,205 @@
+﻿@model IEnumerable<OrderDetails>
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+    decimal total = 0;
+    string userName = HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated
+        ? HttpContextAccessor.HttpContext.User.Identity.Name
+        : "Khách";
+    var orderCode = Model.FirstOrDefault()?.OrderCode;
+    var selectedStatus = ViewBag.Status != null ? (int)ViewBag.Status : 0;
+}
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+
+<h3 class="mb-4">Chi tiết đơn hàng </h3>
+@{
+    string method = ViewBag.PaymentMethod?.ToString() ?? "";
+    string displayMethod = method == "Momo" ? "Thanh toán MoMo" :
+                           method == "COD" ? "Thanh toán khi nhận hàng (COD)" :
+                           "Không xác định";
+}
+<h5 class="mb-3">
+    Phương thức thanh toán:
+    <span class="badge bg-info text-dark">@displayMethod</span>
+</h5>
+
+<table id="orderTable" class="display nowrap table table-bordered table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>STT</th>
+            <th>Mã đơn</th>
+            <th>Người đặt</th>
+            <th>Tên sản phẩm</th>
+            <th>Giá sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Thành tiền</th>
+            <th>Trạng thái</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int index = 1;
+        }
+        @foreach (var item in Model)
+        {
+            var subtotal = item.Quantity * item.Price;
+            total += subtotal;
+            <tr>
+                <td>@(index++)</td>
+                <td>@item.OrderCode</td>
+                <td>@item.UserName</td>
+                <td>@item.Product?.Name</td>
+                <td>@item.Price.ToString("N0") VNĐ</td>
+                <td>@item.Quantity</td>
+                <td>@subtotal.ToString("N0") VNĐ</td>
+                <td>
+                    @if (@ViewBag.Status != 3)
+                    {
+                        <select class="form-control select-update-order" data-ordercode="@item.OrderCode">
+
+                            <option value="1">Đơn hàng mới</option>
+                            <option value="0">Đã xử lý</option>
+                            <option value="3">Đã hủy</option>
+
+                        </select>
+                    }
+                </td>
+
+            </tr>
+        }
+    </tbody>
+  <tfoot>
+    @{
+        var shippingCost = ViewBag.ShippingCost != null ? (decimal)ViewBag.ShippingCost : 0;
+        var discountAmount = ViewBag.DiscountAmount != null ? (decimal)ViewBag.DiscountAmount : 0;
+        var finalTotal = total + shippingCost - discountAmount;
+    }
+    <tr>
+        <td colspan="6" class="text-end fw-bold">Tổng tiền hàng:</td>
+        <td colspan="2">@total.ToString("N0") VNĐ</td>
+    </tr>
+    <tr>
+        <td colspan="6" class="text-end fw-bold">Phí vận chuyển:</td>
+        <td colspan="2">@shippingCost.ToString("N0") VNĐ</td>
+    </tr>
+    <tr>
+        <td colspan="6" class="text-end fw-bold">Giảm giá:</td>
+        <td colspan="2">-@discountAmount.ToString("N0") VNĐ</td>
+    </tr>
+    <tr style="background-color:#e6f7ff;">
+        <td colspan="6" class="text-end fw-bold text-primary">Tổng thanh toán:</td>
+        <td colspan="2"><strong class="text-danger fs-5">@finalTotal.ToString("N0") VNĐ</strong></td>
+    </tr>
+</tfoot>
+
+
+</table>
+
+@section Scripts {
+    <!-- JQuery + DataTables -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            const currentDate = new Date().toLocaleString('vi-VN');
+            const userName = '@userName';
+            const logoBase64 = ''; // chèn ảnh base64 nếu cần
+
+            $('#orderTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'print',
+                        text: '🖨️ In',
+                        title: 'Chi tiết đơn hàng',
+                        messageTop: `Ngày in: ${currentDate} - Người in: ${userName}`,
+                        customize: function (win) {
+                            $(win.document.body).css('font-size', '14px');
+                            if (logoBase64) {
+                                $(win.document.body).prepend(`<img src="${logoBase64}" style="height:50px;margin-bottom:10px;" />`);
+                            }
+                        }
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: '📄 PDF',
+                        title: 'Chi tiết đơn hàng',
+                        messageTop: `Ngày in: ${currentDate} - Người in: ${userName}`,
+                        orientation: 'portrait',
+                        pageSize: 'A4',
+                        customize: function (doc) {
+                            if (logoBase64) {
+                                doc.content.splice(0, 0, {
+                                    image: logoBase64,
+                                    width: 100,
+                                    alignment: 'left',
+                                    margin: [0, 0, 0, 12]
+                                });
+                            }
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        text: '📊 Excel',
+                        title: 'Chi tiết đơn hàng'
+                    }
+                ],
+                responsive: true,
+                language: {
+                    search: "🔍 Tìm kiếm:",
+                    lengthMenu: "Hiển thị _MENU_ dòng",
+                    info: "Hiển thị _START_ đến _END_ của _TOTAL_ dòng",
+                    infoEmpty: "Không có dữ liệu",
+                    zeroRecords: "Không tìm thấy kết quả",
+                    paginate: {
+                        previous: "← Trước",
+                        next: "Tiếp →"
+                    }
+                }
+            });
+
+            // Xử lý cập nhật trạng thái đơn hàng
+            $('.select-update-order').change(function () {
+                var ordercode = $(this).data("ordercode");
+                var status = $(this).val();
+
+                $.ajax({
+                    url: '/Admin/Order/UpdateOrder',
+                    method: 'POST',
+                    data: {
+                        ordercode: ordercode,
+                        status: status
+                    },
+                    success: function (res) {
+                        if (res.success) {
+                            Swal.fire("✅ Thành công", res.message, "success");
+                        } else {
+                            Swal.fire("⚠️ Thất bại", res.message || "Không thể cập nhật", "error");
+                        }
+                    },
+                    error: function (xhr) {
+                        var errMsg = xhr.responseText || "Có lỗi xảy ra khi gửi yêu cầu";
+                        Swal.fire("❌ Lỗi", errMsg, "error");
+                    }
+                });
+            });
+        });
+    </script>
+
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

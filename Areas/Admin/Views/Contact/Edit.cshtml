@@ -1,0 +1,79 @@
+﻿@model ContactModel
+@{
+    ViewData["Title"] = "Chỉnh sửa liên hệ";
+}
+
+<div class="container py-4">
+    <div class="bg-white p-4 shadow-sm rounded">
+        <h3 class="mb-4 text-primary fw-bold">
+            <i class="fas fa-edit me-2"></i>Chỉnh sửa thông tin liên hệ
+        </h3>
+
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-group mb-3">
+                <label class="fw-semibold">Tiêu đề website</label>
+                <input asp-for="Name" class="form-control" placeholder="Nhập tiêu đề hiển thị..." />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="fw-semibold">Bản đồ (iframe Google Map)</label>
+                <textarea asp-for="Map" class="form-control" rows="3" placeholder="Dán iframe Google Map vào đây..."></textarea>
+                <span asp-validation-for="Map" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="fw-semibold">Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="example@email.com" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="fw-semibold">Điện thoại</label>
+                    <input asp-for="Phone" class="form-control" placeholder="Nhập số điện thoại liên hệ..." />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="fw-semibold">Thông tin mô tả liên hệ</label>
+                <textarea asp-for="Description" class="form-control" rows="5" placeholder="Giới thiệu hoặc thông tin hỗ trợ..."></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="fw-semibold">Logo Website</label>
+                <input asp-for="ImageUpload" type="file" class="form-control" accept=".jpg,.jpeg,.png" />
+                <span asp-validation-for="ImageUpload" class="text-danger"></span>
+
+                @if (!string.IsNullOrEmpty(Model.LogoImg))
+                {
+                    <div class="mt-2">
+                        <img src="~/media/logo/@Model.LogoImg" width="120" class="img-thumbnail shadow-sm" />
+                    </div>
+                }
+                <img id="imgpreview" class="pt-2" />
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i> Cập nhật
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <script>
+        CKEDITOR.replace('Description');
+    </script>
+}

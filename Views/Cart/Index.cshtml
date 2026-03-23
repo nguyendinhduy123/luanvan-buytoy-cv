@@ -1,0 +1,97 @@
+﻿@using buytoy.Models.ViewModels
+@model CartItemViewModel
+
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+
+<h4 class="text-center my-4">GIỎ HÀNG</h4>
+
+<section id="cart_items">
+    <div class="container">
+        <div class="breadcrumbs">
+            <ol class="breadcrumb">
+                <li><a href="/">Trang chủ</a></li>
+                @* <li class="active">Giỏ hàng</li> *@
+            </ol>
+        </div>
+
+        <div class="table-responsive cart_info">
+            <table class="table table-bordered table-hover text-center">
+                <thead class="thead-dark">
+                    <tr class="cart_menu">
+                        <th>Hình ảnh</th>
+                        <th>Sản phẩm</th>
+                        <th>Đơn giá</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.CartItems.Count > 0)
+                    {
+                        foreach (var item in Model.CartItems)
+                        {
+                            <tr class="align-middle">
+                                <td><img src="media/products/@item.Image" alt="@item.ProductName" style="width: 80px;" /></td>
+                                <td>@item.ProductName</td>
+                                <td>@String.Format("{0:N0}₫", item.Price)</td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <a class="btn btn-outline-secondary btn-sm" asp-action="Decrease" asp-route-id="@item.ProductId"><i class="fa fa-minus"></i></a>
+                                        <input class="form-control text-center" type="text" value="@item.Quantity" readonly style="width: 50px;" />
+                                        <a class="btn btn-outline-secondary btn-sm" asp-action="Increase" asp-route-id="@item.ProductId"><i class="fa fa-plus"></i></a>
+                                    </div>
+                                </td>
+                                <td>@String.Format("{0:N0}₫", item.Quantity * item.Price)</td>
+                                <td><a class="btn btn-danger btn-sm" asp-action="Remove" asp-route-id="@item.ProductId"><i class="fa fa-trash"></i> Xóa</a></td>
+                            </tr>
+                        }
+
+                        @* <tr class="fw-bold">
+                            <td colspan="4" class="text-end">Tổng cộng:</td>
+                            <td colspan="2">@Model.GrandTotal.ToString("N0")₫</td>
+                        </tr> *@
+
+                        <tr>
+                            <td colspan="6">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a class="btn btn-danger" asp-action="Clear"><i class="fa fa-trash-alt"></i> Xóa tất cả</a>
+                                    <a class="btn btn-primary" asp-controller="Checkout" asp-action="Index">
+                                        <i class="fa fa-credit-card"></i> Thanh toán
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <h4>Giỏ hàng của bạn đang trống</h4>
+                                <a class="btn btn-outline-primary mt-2" href="/">Tiếp tục mua sắm</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @if (TempData["success"] != null)
+    {
+        <text>
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: @Html.Raw(Json.Serialize(TempData["success"])),
+                timer: 2000,
+                showConfirmButton: false
+            });
+        </text>
+    }
+}

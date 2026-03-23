@@ -1,0 +1,75 @@
+﻿<div class="sidebar p-4 rounded-4 shadow bg-light">
+    <h5 class="sidebar-heading text-success d-flex align-items-center mb-3">
+        <i class="fa fa-list me-2 fs-5 text-success"></i>
+        <span class="fw-semibold">Danh mục</span>
+    </h5>
+    <div class="list-group list-group-flush mb-4">
+        <vc:categories></vc:categories>
+    </div>
+
+    <h5 class="sidebar-heading text-success d-flex align-items-center mb-3">
+        <i class="fa fa-tags me-2 fs-5 text-success"></i>
+        <span class="fw-semibold">Thương hiệu</span>
+    </h5>
+    <div class="list-group list-group-flush">
+        <vc:brands></vc:brands>
+    </div>
+</div>
+<style>
+    .sidebar {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .sidebar-heading {
+        font-size: 1.1rem;
+        border-left: 4px solid #28a745;
+        padding-left: 0.5rem;
+    }
+
+    .list-group-item {
+        border: none;
+        padding: 10px 15px;
+        font-size: 15px;
+        transition: all 0.2s ease-in-out;
+        border-radius: 8px;
+    }
+
+        .list-group-item:hover {
+            background-color: #e9fbe9;
+            color: #28a745;
+            font-weight: 500;
+            transform: translateX(4px);
+        }
+
+        .list-group-item.active {
+            background-color: #d4edda;
+            color: #155724;
+            font-weight: 600;
+        }
+
+    
+    .list-group-item {
+        border: none;
+        padding: 10px 15px;
+        font-size: 15px;
+        border-radius: 8px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .list-group-item:hover {
+        background-color: #e9f0ff;
+        color: #007bff;
+        font-weight: 500;
+        transform: translateX(4px);
+    }
+
+    .list-group-item i {
+        width: 20px;
+        text-align: center;
+    }
+
+
+</style>

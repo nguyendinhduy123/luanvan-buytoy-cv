@@ -1,0 +1,452 @@
+﻿@using buytoy.Models.ViewModels
+@model CartItemViewModel
+
+@{
+    ViewData["Title"] = "Thanh toán";
+}
+<style>
+    .btn-momo {
+        background-color: #a50064; /* Màu đặc trưng của MoMo */
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+        .btn-momo:hover {
+            background-color: #8c004f;
+        }
+
+        .btn-momo img {
+            background: white;
+            border-radius: 4px;
+            padding: 2px;
+        }
+</style>
+
+<h4 class="text-center my-4">THÔNG TIN GIAO HÀNG</h4>
+@if (TempData["error"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: '@TempData["error"]',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    </script>
+}
+
+<div class="container">
+    <form method="post" asp-action="Checkout" asp-controller="Checkout" class="row g-3" id="checkoutForm">
+        <div class="col-md-4">
+            <label>Họ và tên</label>
+            <input type="text" class="form-control" name="FullName" required />
+        </div>
+        <div class="col-md-4">
+            <label>Số điện thoại</label>
+            <input type="tel" class="form-control" name="Phone" required />
+        </div>
+        <div class="col-md-4">
+            <label>Email</label>
+            <input type="email" class="form-control" name="Email" required />
+        </div>
+
+        <div class="col-md-4">
+            <label>Tỉnh/Thành phố</label>
+            <select class="form-select" id="tinh" name="Province" required><option value="">-- Chọn Tỉnh --</option></select>
+        </div>
+        <div class="col-md-4">
+            <label>Quận/Huyện</label>
+            <select class="form-select" id="quan" name="District" required><option value="">-- Chọn Quận --</option></select>
+        </div>
+        <div class="col-md-4">
+            <label>Phường/Xã</label>
+            <select class="form-select" id="phuong" name="Ward" required><option value="">-- Chọn Phường --</option></select>
+        </div>
+
+        <div class="col-12">
+            <label>Địa chỉ cụ thể</label>
+            <input type="text" class="form-control" name="AddressDetail" placeholder="Số nhà, tên đường..." required />
+        </div>
+
+        <div class="col-md-4">
+            <label>Phí vận chuyển</label>
+            <input type="text" class="form-control" id="shipping-fee" readonly value="@Model.ShippingCost.ToString("N0")₫" />
+        </div>
+
+        <div class="col-md-4">
+            <label>Mã giảm giá</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="coupon-code" placeholder="Nhập mã..." />
+                <button type="button" class="btn btn-secondary btn-remove-coupon"><i class="fa fa-times"></i></button>
+            </div>
+            <small id="coupon-status" class="text-success" style="display:none;"></small>
+        </div>
+        @* <div class="mb-3">
+            <label class="form-label fw-semibold">Phương thức giao hàng:</label><br />
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="ShippingOption" id="normalShipping" value="normal" checked>
+                <label class="form-check-label" for="normalShipping">Giao hàng thường (0₫)</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="ShippingOption" id="expressShipping" value="express">
+                <label class="form-check-label" for="expressShipping">Giao hàng cấp tốc (+20.000₫)</label>
+            </div>
+        </div> *@
+
+        <div class="col-md-4">
+            <label>Tổng thanh toán</label>
+            <input type="text" class="form-control" id="grand-total" readonly />
+        </div>
+
+        <div class="col-12 d-flex justify-content-between">
+            <button type="button" class="btn btn-info btn-add-shipping"><i class="fa fa-truck"></i> Tính phí</button>
+            <button type="button" class="btn btn-warning btn-delete-shipping"><i class="fa fa-trash"></i> Xóa phí</button>
+            <button type="button" class="btn btn-secondary btn-apply-coupon"><i class="fa fa-ticket-alt"></i> Áp mã</button>
+            <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> Đặt hàng</button>
+            <button type="button" class="btn btn-momo btn-pay-momo">
+                <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="Momo" style="height: 24px; margin-right: 8px;" />
+                Thanh toán qua Momo
+            </button>
+            <button type="button" class="btn btn-danger btn-pay-vnpay">
+                <i class="fab fa-cc-visa"></i> Thanh toán qua VNPAY
+            </button>
+
+
+
+            <input type="hidden" name="CouponCode" value="@Model.CouponCode" />
+            <input type="hidden" name="DiscountAmount" value="@Model.DiscountAmount" />
+            <input type="hidden" name="ShippingCost" value="@Model.ShippingCost" />
+
+        </div>
+    </form>
+    <div class="container mt-4">
+        <h5 class="text-center mb-3">TÓM TẮT ĐƠN HÀNG</h5>
+        <table class="table table-bordered text-end">
+            <tbody>
+                <tr class="fw-bold">
+                    <td class="text-start">Tổng sản phẩm:</td>
+                    <td>@Model.GrandTotal.ToString("N0")₫</td>
+                </tr>
+
+                @if (!string.IsNullOrEmpty(Model.CouponCode))
+                {
+                    <tr class="text-success">
+                        <td class="text-start">Mã giảm giá:</td>
+                        <td>@Model.CouponCode</td>
+                    </tr>
+                    <tr class="text-success">
+                        <td class="text-start">Giảm giá:</td>
+                        <td>-@Model.DiscountAmount.ToString("N0")₫</td>
+                    </tr>
+                }
+
+                <tr>
+                    <td class="text-start">Phí vận chuyển:</td>
+                    <td>@Model.ShippingCost.ToString("N0")₫</td>
+                </tr>
+
+                <tr class="fw-bold text-primary">
+                    <td class="text-start">Tổng thanh toán:</td>
+                    <td>@((Model.GrandTotal + Model.ShippingCost - Model.DiscountAmount).ToString("N0"))₫</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const cartTotal = @Model.GrandTotal.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                let currentShipping = @Model.ShippingCost.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        let discountAmount = @Model.DiscountAmount.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+        // let currentShipping = @Model.ShippingCost;
+        // let discountAmount = @Model.DiscountAmount;
+
+        function formatCurrency(n) {
+            return n.toLocaleString('vi-VN') + "₫";
+        }
+
+        function updateGrandTotal() {
+            const total = cartTotal + currentShipping - discountAmount;
+            $("#grand-total").val(formatCurrency(Math.max(total, 0)));
+            $("table tbody tr:last-child td:last-child").text(formatCurrency(Math.max(total, 0)));
+        }
+
+        function updateShippingInSummary() {
+            $("table tbody tr").each(function () {
+                const label = $(this).find("td:first-child").text().trim();
+                if (label.includes("Phí vận chuyển:")) {
+                    $(this).find("td:last-child").text(formatCurrency(currentShipping));
+                }
+            });
+        }
+
+        $(function () {
+            updateGrandTotal();
+                    // Lắng nghe thay đổi phương thức giao hàng
+        // $("input[name='ShippingOption']").change(function () {
+        //     const selected = $(this).val();
+
+        //     if (selected === "normal") {
+        //         currentShipping = 0;
+        //     } else if (selected === "express") {
+        //         currentShipping = 20000;
+        //     }
+
+        //     $("input[name='ShippingCost']").val(currentShipping);
+        //     $("#shipping-fee").val(formatCurrency(currentShipping));
+        //     updateShippingInSummary();
+        //     updateGrandTotal();
+        // });
+
+            // Load tỉnh, quận, phường
+                   // Load tỉnh/thành phố từ provinces.open-api.vn
+        $.get("https://provinces.open-api.vn/api/p", function (provinces) {
+            provinces.forEach(function (province) {
+                $('#tinh').append(`<option value="${province.name}" data-code="${province.code}">${province.name}</option>`);
+            });
+
+            // Khi chọn tỉnh, load quận/huyện
+            $('#tinh').change(function () {
+                const tinhCode = $('#tinh option:selected').data('code');
+                $('#quan').html('<option value="">-- Chọn Quận/Huyện --</option>');
+                $('#phuong').html('<option value="">-- Chọn Phường/Xã --</option>');
+
+                $.get(`https://provinces.open-api.vn/api/p/${tinhCode}?depth=2`, function (province) {
+                    province.districts.forEach(function (district) {
+                        $('#quan').append(`<option value="${district.name}" data-code="${district.code}">${district.name}</option>`);
+                    });
+
+                    // Khi chọn quận, load phường
+                    $('#quan').change(function () {
+                        const quanCode = $('#quan option:selected').data('code');
+                        $('#phuong').html('<option value="">-- Chọn Phường/Xã --</option>');
+
+                        $.get(`https://provinces.open-api.vn/api/d/${quanCode}?depth=2`, function (district) {
+                            district.wards.forEach(function (ward) {
+                                $('#phuong').append(`<option value="${ward.name}">${ward.name}</option>`);
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+                    
+                
+            
+
+            // Tính phí vận chuyển
+            $(".btn-add-shipping").click(function () {
+                const tinh = $("#tinh").val();
+                const quan = $("#quan").val();
+                const phuong = $("#phuong").val();
+
+                if (!tinh || !quan || !phuong) {
+                    Swal.fire("Vui lòng chọn đầy đủ địa chỉ.");
+                    return;
+                }
+
+                $.post("@Url.Action("GetShipping", "Cart")", { tinh, quan, phuong }, function (res) {
+                    if (res.shippingPrice !== undefined) {
+                        currentShipping = res.shippingPrice;
+                        $("input[name='ShippingCost']").val(res.shippingPrice);
+                        $("#shipping-fee").val(formatCurrency(res.shippingPrice));
+                        updateShippingInSummary();
+                        updateGrandTotal();
+                        Swal.fire("Tính phí vận chuyển thành công!");
+                    } else {
+                        Swal.fire("Không tìm thấy phí vận chuyển.");
+                    }
+                });
+            });
+
+            // Xóa phí vận chuyển
+            $(".btn-delete-shipping").click(function () {
+                $.post("@Url.Action("DeleteShipping", "Cart")", function (res) {
+                    if (res.success) {
+                        currentShipping = 0;
+                        $("input[name='ShippingCost']").val("0");
+                        $("#shipping-fee").val("0₫");
+                        updateShippingInSummary();
+                        updateGrandTotal();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đã xóa phí vận chuyển.',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    }
+                });
+            });
+
+            // Áp mã giảm giá
+            $(".btn-apply-coupon").click(function () {
+                const coupon = $("#coupon-code").val();
+                if (!coupon) {
+                    Swal.fire("Vui lòng nhập mã giảm giá!");
+                    return;
+                }
+
+                $.post("@Url.Action("GetCoupon", "Cart")", { coupon_value: coupon }, function (res) {
+                    if (res.success) {
+                        discountAmount = parseFloat(res.discountAmount) || 0;
+                        $("#coupon-status").text("Đã áp dụng: " + res.coupon).show();
+                        $("input[name='DiscountAmount']").val(discountAmount);
+                        $("input[name='CouponCode']").val(res.coupon);
+                        updateGrandTotal();
+
+                        $(".discount-row-code").remove();
+                        $(".discount-row-amount").remove();
+
+                                const discountHTML = `
+            <tr class="text-success discount-row-code">
+                <td class="text-start">Mã giảm giá:</td>
+                <td>${res.coupon}</td>
+            </tr>
+            <tr class="text-success discount-row-amount">
+                <td class="text-start">Giảm giá:</td>
+                <td>-${discountAmount.toLocaleString('vi-VN')}₫</td>
+            </tr>
+        `;
+
+                        const lastRow = $("table tbody tr").last();
+                        lastRow.before(discountHTML);
+                        Swal.fire("Áp mã thành công!");
+                    } else {
+                        Swal.fire(res.message);
+                    }
+                });
+            });
+
+            // Xóa mã giảm giá
+            $(".btn-remove-coupon").click(function () {
+                $.post("@Url.Action("DeleteCoupon", "Checkout")", function (res) {
+                    if (res.success) {
+                        discountAmount = 0;
+                        $("#coupon-code").val("");
+                        $("#coupon-status").hide().text("");
+                        $("input[name='DiscountAmount']").val("0");
+                        $("input[name='CouponCode']").val("");
+                        $(".discount-row-code").remove();
+                        $(".discount-row-amount").remove();
+                        updateGrandTotal();
+                        Swal.fire("Mã giảm giá đã được xóa!");
+                    } else {
+                        Swal.fire("Không thể xóa mã giảm giá.");
+                    }
+                });
+            });
+
+            // Xác nhận submit
+            $("#checkoutForm").submit(function (e) {
+                e.preventDefault();
+
+                if (currentShipping <= 0) {
+                    Swal.fire("Vui lòng tính phí vận chuyển trước khi đặt hàng.");
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Xác nhận đặt hàng?',
+                    text: "Bạn có chắc chắn muốn gửi đơn hàng này?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đặt hàng',
+                    cancelButtonText: 'Hủy',
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#d33'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $("#checkoutForm")[0].submit();
+                    }
+                });
+            });
+
+            // Hiện thông báo thành công nếu có
+            @if (TempData["success"] != null)
+            {
+                        <text>
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                // text: @Html.Raw(Json.Serialize(TempData["success"])),
+                                    text: "@TempData["success"]",
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        </text>
+            }
+        });
+                // Nút thanh toán bằng Momo
+        $(".btn-pay-momo").click(function () {
+            if (currentShipping <= 0) {
+                Swal.fire("Vui lòng tính phí vận chuyển trước khi thanh toán bằng Momo.");
+                return;
+            }
+
+            const form = $("#checkoutForm");
+            const formData = form.serialize();
+
+            Swal.fire({
+                title: 'Xác nhận thanh toán bằng Momo?',
+                text: "Bạn sẽ được chuyển đến Momo để hoàn tất thanh toán.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Tiếp tục',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post("@Url.Action("MomoPayment", "Checkout")", formData, function (res) {
+                        if (res && res.payUrl) {
+                            window.location.href = res.payUrl;
+                        } else {
+                            Swal.fire("Không thể tạo yêu cầu thanh toán Momo.");
+                        }
+                    });
+                }
+            });
+        });
+                // Nút thanh toán bằng VNPAY
+        $(".btn-pay-vnpay").click(function () {
+            if (currentShipping <= 0) {
+                Swal.fire("Vui lòng tính phí vận chuyển trước khi thanh toán bằng VNPAY.");
+                return;
+            }
+
+            const form = $("#checkoutForm");
+            const formData = form.serialize();
+
+            Swal.fire({
+                title: 'Xác nhận thanh toán bằng VNPAY?',
+                text: "Bạn sẽ được chuyển đến cổng thanh toán VNPAY.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Tiếp tục',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post("@Url.Action("VnpayPayment", "Checkout")", formData, function (res) {
+                        if (res && res.paymentUrl) {
+                            window.location.href = res.paymentUrl;
+                        } else {
+                            Swal.fire("Không thể tạo yêu cầu thanh toán VNPAY.");
+                        }
+                    });
+                }
+            });
+        });
+
+    </script>
+
+}

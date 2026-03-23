@@ -1,0 +1,87 @@
+﻿@model ContactModel
+
+<footer class="mt-5 bg-dark text-light">
+    <div class="container-fluid py-4 px-4 px-md-5">
+        <div class="row text-white">
+            <!-- Logo + mô tả -->
+            <div class="col-md-3 mb-4 text-md-start text-center">
+                <img src="~/media/logo/@Model.LogoImg" alt="Logo" class="img-fluid rounded mb-2" style="width: 200px; height: 120px; object-fit: cover;" />
+                <p class="small mt-2">@Html.Raw(Model.Description)</p>
+            </div>
+
+            <!-- Bản đồ -->
+            <div class="col-md-3 mb-4">
+                @Html.Raw(Model.Map)
+            </div>
+
+            <!-- Liên kết nhanh -->
+            <div class="col-md-3 mb-4">
+                <h6 class="fw-bold">Chính sách</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <a asp-controller="Home" asp-action="Privacy" class="text-light text-decoration-none d-flex align-items-center footer-link">
+                            <i class="fa fa-shield-alt me-2 text-warning"></i> Chính sách bảo mật
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a asp-controller="Home" asp-action="ReturnPolicy" class="text-light text-decoration-none d-flex align-items-center footer-link">
+                            <i class="fa fa-undo-alt me-2 text-info"></i> Chính sách đổi/trả
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a asp-controller="Home" asp-action="ShippingPolicy" class="text-light text-decoration-none d-flex align-items-center footer-link">
+                            <i class="fa fa-truck me-2 text-success"></i> Chính sách giao hàng
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a asp-controller="Home" asp-action="Terms" class="text-light text-decoration-none d-flex align-items-center footer-link">
+                            <i class="fa fa-book-open me-2 text-primary"></i> Hướng dẫn mua hàng
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a asp-controller="Home" asp-action="Contact" class="text-light text-decoration-none d-flex align-items-center footer-link">
+                            <i class="fa fa-envelope me-2 text-danger"></i> Liên hệ
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Thông tin liên hệ -->
+            <div class="col-md-3 mb-4">
+                <h6 class="fw-bold">Thông tin liên hệ</h6>
+                <p class="text-light small mb-1"><i class="fas fa-user me-2"></i>@Model.Name</p>
+                <p class="text-light small mb-1"><i class="fas fa-envelope me-2"></i>@Model.Email</p>
+                <p class="text-light small mb-0"><i class="fas fa-phone me-2"></i>@Model.Phone</p>
+            </div>
+        </div>
+
+        <!-- Fanpage cá nhân -->
+        <div class="row mt-3">
+            <div class="col text-center">
+                <div class="fb-page"
+                     data-href="https://www.facebook.com/nguyen.inh.duy.533930/"
+                     data-tabs="timeline"
+                     data-width="340"
+                     data-height="130"
+                     data-small-header="false"
+                     data-adapt-container-width="true"
+                     data-hide-cover="false"
+                     data-show-facepile="true">
+                    <blockquote cite="https://www.facebook.com/nguyen.inh.duy.533930/" class="fb-xfbml-parse-ignore">
+                        <a href="https://www.facebook.com/nguyen.inh.duy.533930/">Facebook của Duy</a>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nút theo dõi Facebook -->
+        <div class="text-center mt-4">
+            <a href="https://www.facebook.com/profile.php?id=61577834414087" target="_blank" class="btn btn-outline-light btn-sm">
+                <i class="fab fa-facebook me-1"></i> Theo dõi Tiệm đồ chơi của Di trên Facebook
+            </a>
+        </div>
+
+        <hr class="bg-light my-3" />
+        <p class="text-light small mb-0 text-center">&copy; @DateTime.Now.Year Tiệm đồ chơi của Di. Thiết kế thân thiện & hiện đại.</p>
+    </div>
+</footer>

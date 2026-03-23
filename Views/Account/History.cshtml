@@ -1,0 +1,158 @@
+﻿@model IEnumerable<OrderModel>
+
+@{
+    ViewData["Title"] = "Lịch sử đơn hàng";
+    var userEmail = User.Identity.Name;
+}
+
+<div class="container py-4">
+    <h4 class="mb-4 text-center">Danh sách đơn hàng của <b>@userEmail</b></h4>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            Bạn chưa có đơn hàng nào.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Id</th>
+                        <th>Mã đơn hàng</th>
+                        <th>Phí vận chuyển</th>
+                        <th>Mã giảm giá</th>
+                        <th>Email người đặt</th>
+                        <th>Phương thức thanh toán </th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.OrderCode</td>
+                            <td>@item.ShippingCost.ToString("N0") VNĐ</td>
+                            <td>@item.CouponCode</td>
+                            <td>@item.UserName</td>
+                          <td>
+    @switch (item.PaymentMethod?.ToLower())
+    {
+        case "cod":
+        case null:
+            <span class="text-primary">Thanh toán khi nhận hàng (COD)</span>;
+            break;
+        case "momo":
+            <span class="text-danger">Ví điện tử MoMo</span>;
+            break;
+        case "vnpay":
+            <span class="text-success">VNPAY</span>;
+            break;
+        default:
+            <span class="text-muted">Không rõ</span>;
+            break;
+    }
+</td>
+
+                            <td>
+                                @if (item.Status == 1)
+                                {
+                                    <span class="text-success fw-bold">Đơn hàng mới</span>
+                                }
+                                else if (item.Status == 0)
+                                {
+                                    <span class="text-secondary fw-bold">Đã xử lý</span>
+                                }
+                                else if (item.Status == 3)
+                                {
+                                    <span class="text-danger fw-bold">Đã hủy</span>
+                                }
+                            </td>
+                            <td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @if (item.Status == 1)
+                                {
+                                   <form method="post" asp-action="CancelOrder" asp-controller="Account" asp-route-ordercode="@item.OrderCode" class="cancel-form" data-ordercode="@item.OrderCode">
+    <button type="submit" class="btn btn-danger btn-sm">Hủy đơn hàng</button>
+</form>
+
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Không thể hủy</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // ✅ Xác nhận trước khi hủy đơn hàng
+            $(".cancel-form").submit(function (e) {
+                e.preventDefault(); // Chặn submit form mặc định
+
+                const form = this;
+                const orderCode = $(this).data("ordercode");
+
+                Swal.fire({
+                    title: 'Bạn có chắc muốn hủy đơn?',
+                    text: "Mã đơn hàng: " + orderCode,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Hủy đơn',
+                    cancelButtonText: 'Không'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit(); // Gửi form nếu xác nhận
+                    }
+                });
+            });
+
+            // ✅ Thông báo khi hủy thành công (TempData["success"])
+            @if (TempData["success"] != null)
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: @Html.Raw(Json.Serialize(TempData["success"])),
+
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                </text>
+            }
+
+            // ✅ Thông báo lỗi nếu có (TempData["error"])
+            @if (TempData["error"] != null)
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: '@TempData["error"]',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                </text>
+            }
+
+        });
+    </script>
+}
+

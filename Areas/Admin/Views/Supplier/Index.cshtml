@@ -1,0 +1,75 @@
+﻿@model IEnumerable<buytoy.Models.SupplierModel>
+
+@{
+    ViewData["Title"] = "Danh sách nhà cung cấp";
+}
+
+<!-- Bootstrap + SweetAlert2 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container-fluid py-4">
+    <h2 class="mb-4 text-primary">Quản lý nhà cung cấp</h2>
+
+    <a asp-action="Create" class="btn btn-success mb-3">
+        <i class="fas fa-plus"></i> Thêm nhà cung cấp
+    </a>
+
+    <div class="table-responsive">
+        <table id="myTable" class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Tên nhà cung cấp</th>
+                    <th>Liên hệ</th>
+                    <th>Địa chỉ</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td>@s.Id</td>
+                        <td>@s.Name</td>
+                        <td>@s.Contact</td>
+                        <td>@s.Address</td>
+                        <td>
+                            <div class="d-flex justify-content-center align-items-center gap-1">
+                                <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm text-white" style="background-color: #f0ad4e;">Sửa</a>
+
+                                <form asp-action="Delete" asp-route-id="@s.Id" method="post" class="delete-form m-0 p-0">
+                                    <button type="submit" class="btn btn-sm text-white" style="background-color: #d9534f;">Xóa</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- SweetAlert2 Confirm -->
+<script>
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault(); // Ngăn form gửi ngay
+
+            Swal.fire({
+                title: 'Bạn có chắc muốn xóa?',
+                text: "Hành động này sẽ không thể hoàn tác!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // Gửi form nếu xác nhận
+                }
+            });
+        });
+    });
+</script>

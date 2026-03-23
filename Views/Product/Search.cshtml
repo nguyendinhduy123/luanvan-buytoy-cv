@@ -1,0 +1,214 @@
+﻿@model IEnumerable<ProductModel>
+@{
+    ViewData["Title"] = "Kết quả tìm kiếm";
+    var searchTerm = ViewBag.SearchTerm as string;
+    // var searchTerm = ViewBag.Keyword as string;
+}
+
+<div class="row">
+    <div class="col-sm-3">
+        @Html.Partial("_SidebarPartial")
+    </div>
+
+    <div class="col-sm-9">
+        <h2 class="text-center mb-4 text-success fw-bold">
+            Kết quả tìm kiếm cho: <span class="text-dark">"@searchTerm"</span>
+        </h2>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-warning text-center">
+                Không tìm thấy sản phẩm nào phù hợp với từ khóa <strong>"@searchTerm"</strong>.
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var item in Model)
+                {
+                    var imageUrl = !string.IsNullOrEmpty(item.Image)
+                    ? Url.Content($"~/media/products/{item.Image}")
+                    : Url.Content("~/media/no-image.png");
+
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="product-image-wrapper shadow-sm h-100 d-flex flex-column justify-content-between border rounded">
+                            <div class="productinfo text-center p-3">
+                                <a asp-action="Details" asp-controller="Product" asp-route-id="@item.Id">
+                                    <img src="@imageUrl" alt="@item.Name" class="img-fluid rounded mb-3" style="height: 220px; object-fit: contain;" />
+                                    <h2 class="text-success">@item.Price.ToString("N0") ₫</h2>
+                                    <p class="fw-bold">@item.Name</p>
+                                    <p>Danh mục: <em>@item.Category?.Name</em></p>
+                                    <p>Thương hiệu: <em>@item.Brand?.Name</em></p>
+                                </a>
+
+                                <div class="mt-2">
+                                    @if (item.Quantity > 0)
+                                    {
+                                        <span class="badge bg-success">Còn hàng</span>
+                                        <button data-product_id="@item.Id" class="btn btn-success mt-2 add-to-cart w-100">
+                                            <i class="fa fa-shopping-cart me-1"></i> Thêm vào giỏ
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Hết hàng</span>
+                                        <button class="btn btn-secondary mt-2 w-100" disabled>
+                                            <i class="fa fa-times-circle me-1"></i> Hết hàng
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="choose border-top px-3 py-2 d-flex justify-content-between">
+                                <a href="#" class="add-to-wishlist text-muted small" data-product_id="@item.Id" data-name="@item.Name">
+                                    <i class="fa fa-heart text-warning me-1"></i> Yêu thích
+                                </a>
+                                <a href="#" class="add-to-compare text-muted small" data-product_id="@item.Id" data-name="@item.Name">
+                                    <i class="fa fa-balance-scale me-1"></i> So sánh
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Thêm vào giỏ hàng
+            $('.add-to-cart').click(function (e) {
+                e.preventDefault();
+                const id = $(this).data("product_id");
+
+                $.post("@Url.Action("Add", "Cart")", { Id: id })
+                    .done(function () {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công!',
+                            text: 'Sản phẩm đã được thêm vào giỏ hàng.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    })
+                    .fail(function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: 'Không thể thêm sản phẩm. Vui lòng thử lại.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    });
+            });
+
+            // Yêu thích
+            $('.add-to-wishlist').click(function (e) {
+                e.preventDefault();
+                const id = $(this).data("product_id");
+                const name = $(this).data("name");
+
+                let wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+                if (!wishlist.includes(id)) {
+                    wishlist.push(id);
+                    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã thêm yêu thích!',
+                        text: `${name} đã được thêm vào danh sách yêu thích.`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Đã tồn tại!',
+                        text: 'Sản phẩm đã có trong danh sách yêu thích.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+
+            // So sánh
+            $('.add-to-compare').click(function (e) {
+                e.preventDefault();
+                const id = $(this).data("product_id");
+                const name = $(this).data("name");
+
+                let compare = JSON.parse(localStorage.getItem("compare") || "[]");
+                if (!compare.includes(id)) {
+                    if (compare.length >= 3) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Giới hạn 3 sản phẩm!',
+                            text: 'Chỉ được so sánh tối đa 3 sản phẩm.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        return;
+                    }
+
+                    compare.push(id);
+                    localStorage.setItem("compare", JSON.stringify(compare));
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã thêm so sánh!',
+                        text: `${name} đã được thêm vào danh sách so sánh.`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Đã tồn tại!',
+                        text: 'Sản phẩm đã có trong danh sách so sánh.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    .product-image-wrapper {
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 15px;
+        background: #fff;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+        .product-image-wrapper:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+    .productinfo img {
+        transition: transform 0.3s ease;
+    }
+
+    .productinfo:hover img {
+        transform: scale(1.05);
+    }
+
+    .choose a:hover {
+        color: #28a745 !important;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+</style>

@@ -1,0 +1,29 @@
+﻿@model IEnumerable<buytoy.Models.ContactMessageModel>
+
+@{
+    ViewData["Title"] = "Tin nhắn liên hệ";
+}
+
+<h3 class="mb-3">Danh sách liên hệ từ người dùng</h3>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>Nội dung</th>
+            <th>Thời gian gửi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var msg in Model)
+        {
+            <tr>
+                <td>@msg.Name</td>
+                <td>@msg.Email</td>
+                <td>@msg.Message</td>
+                <td>@msg.SentAt.ToString("dd/MM/yyyy HH:mm")</td>
+            </tr>
+        }
+    </tbody>
+</table>

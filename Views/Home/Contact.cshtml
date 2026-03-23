@@ -1,0 +1,68 @@
+﻿    @model ContactModel
+
+    @{
+        ViewData["Title"] = "Liên hệ";
+    }
+
+    <div class="container py-4">
+        <h2 class="mb-4 text-success text-center fw-bold">Liên hệ với Tiệm đồ chơi của Di</h2>
+
+        <div class="row g-4">
+            <!-- Cột trái: Thông tin liên hệ -->
+            <div class="col-md-6">
+                <div class="bg-light p-4 rounded shadow-sm h-100">
+                    <div class="text-center mb-3">
+                        <img src="~/media/logo/@Model.LogoImg" alt="Logo" class="img-fluid rounded mb-2" style="width: 180px; height: 110px; object-fit: cover;" />
+                    </div>
+
+                    <p class="small text-dark text-center">@Html.Raw(Model.Description)</p>
+
+                    <h5 class="text-primary fw-bold mb-3">Thông tin liên hệ</h5>
+                    <p><i class="fas fa-user me-2 text-success"></i><strong>Người liên hệ:</strong> @Model.Name</p>
+                    <p><i class="fas fa-envelope me-2 text-success"></i><strong>Email:</strong> @Model.Email</p>
+                    <p><i class="fas fa-phone me-2 text-success"></i><strong>Số điện thoại:</strong> @Model.Phone</p>
+                    <p><i class="fas fa-map-marker-alt me-2 text-success"></i><strong>Địa chỉ:</strong> 176 Nguyễn Thị Thập, Quận 7, TPHCM</p>
+                    <div class="ratio ratio-16x9 mt-3">
+                        @Html.Raw(Model.Map)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột phải: Form gửi liên hệ -->
+            <div class="col-md-6">
+                <div class="bg-light p-4 rounded shadow-sm h-100">
+                    <h5 class="text-primary fw-bold mb-3">Gửi tin nhắn</h5>
+                    <form method="post" asp-action="SendContact">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" id="name" name="Name" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="Email" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Nội dung</label>
+                            <textarea class="form-control" id="message" name="Message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane"></i> Gửi liên hệ
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            @if (TempData["Success"] != null)
+            {
+                    <text>Swal.fire('Thành công!', '@TempData["Success"]', 'success');</text>
+            }
+            else if (TempData["Error"] != null)
+            {
+                    <text>Swal.fire('Lỗi!', '@TempData["Error"]', 'error');</text>
+            }
+        </script>
+    }

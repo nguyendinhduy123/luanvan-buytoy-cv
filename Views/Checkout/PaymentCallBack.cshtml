@@ -1,0 +1,45 @@
+﻿@using System.Globalization
+@using buytoy.Models.Momo
+@model MomoExecuteResponseModel
+
+@{
+    ViewData["Title"] = "Kết quả thanh toán";
+
+    // ⚠️ Giả lập thanh toán thành công
+    var resultMsg = "Thanh toán thành công!";
+    var isSuccess = true;
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg rounded-4">
+        <div class="card-body text-center">
+            <h3 class="mb-4 text-success">
+                <i class="fa fa-check-circle"></i>
+                @resultMsg
+            </h3>
+
+            <div class="mb-3">
+                <h5 class="mb-1">Mã đơn hàng:</h5>
+                <p class="fw-bold text-primary">@Model.OrderId</p>
+            </div>
+
+            <div class="mb-3">
+                <h5 class="mb-1">Nội dung:</h5>
+                <p>@Model.OrderInfo</p>
+            </div>
+
+            <div class="mb-3">
+                <h5 class="mb-1">Tổng thanh toán:</h5>
+                <p class="fw-bold text-danger">
+                    @($"{Model.Amount:N0}₫")
+                </p>
+            </div>
+
+            <a asp-controller="Account" asp-action="History" class="btn btn-outline-primary rounded-pill px-4 py-2 mt-3">
+                <i class="fa fa-history"></i> Xem lịch sử đơn hàng
+            </a>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

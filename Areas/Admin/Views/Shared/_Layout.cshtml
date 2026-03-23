@@ -1,0 +1,336 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Khu vực Quản trị</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Custom CSS -->
+    <link href="~/css/main.css" rel="stylesheet" />
+    <link href="~/css/admin.css" rel="stylesheet" />
+    <link rel="icon" href="~/images/icons/favicon.png" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        .navbar {
+            background-color: #28a745;
+        }
+
+        .navbar-brand, .nav-link, .dropdown-item {
+            color: white !important;
+        }
+
+            .nav-link:hover, .dropdown-item:hover {
+                background-color: #218838;
+                color: #fff !important;
+            }
+
+        .sidebar {
+            background-color: #1e7e34;
+            min-height: 100vh;
+        }
+
+            .sidebar .nav-link {
+                color: #d4f5dc;
+            }
+
+                .sidebar .nav-link.active {
+                    background-color: #218838;
+                    font-weight: 600;
+                }
+
+        footer {
+            background-color: #28a745;
+            color: #fff;
+            padding: 15px 0;
+            text-align: center;
+        }
+
+        .main-content {
+            min-height: 100vh;
+            background-color: #fff;
+            padding: 2rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        table.dataTable {
+            font-size: 14px;
+            border: 1px solid #dee2e6;
+        }
+
+            table.dataTable th,
+            table.dataTable td {
+                vertical-align: middle !important;
+                text-align: center;
+                padding: 10px;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+                table.dataTable td img {
+                    width: 70px;
+                    height: 70px;
+                    object-fit: cover;
+                    border-radius: 5px;
+                    border: 1px solid #ddd;
+                }
+
+            table.dataTable tbody tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+
+        .badge {
+            font-size: 13px;
+            padding: 5px 10px;
+        }
+
+        .dataTables_wrapper .dt-buttons .btn {
+            background-color: #f97316;
+            color: white;
+            border: none;
+            margin-right: 5px;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+        }
+
+        .dataTables_length select {
+            border-radius: 5px;
+            padding: 3px 5px;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 5px 10px;
+            margin: 0 2px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #333 !important;
+        }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+                background-color: #198754 !important;
+                color: white !important;
+            }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                <i class="fas fa-cogs"></i> Khu vực Quản trị
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="adminNavbar">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item me-3">
+                        <span class="nav-link text-white">
+                            <i class="fas fa-user-circle me-1"></i> @User.Identity?.Name
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <form asp-area="Views" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar py-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Views" asp-controller="Home" asp-action="Index">
+                            <i class="fas fa-home me-2"></i>Trang chủ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+    <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
+        <i class="fas fa-chart-line me-2 text-primary"></i> Bảng điều khiển
+    </a>
+</li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="test" asp-action="Index">
+                            <i class="fas fa-box-open me-2 text-info"></i> test
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Product" asp-action="Index">
+                            <i class="fas fa-box-open me-2 text-info"></i> Sản phẩm
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Shipping" asp-action="Index">
+                            <i class="fas fa-shipping-fast me-2 text-secondary"></i> Vận chuyển
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Supplier" asp-action="Index">
+                            <i class="fas fa-truck me-2 text-info"></i> Nhà cung cấp
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ImportReceipt" asp-action="Index">
+                            <i class="fas fa-file-invoice-dollar me-2 text-warning"></i> Phiếu nhập
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="Review" asp-action="Index">
+                            <i class="fas fa-star me-2 text-warning"></i> Đánh giá
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Slider" asp-action="Index">
+                            <i class="fas fa-sliders-h me-2 text-primary"></i> Trình chiếu
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Category" asp-action="Index">
+                            <i class="fas fa-tags me-2 text-success"></i> Danh mục
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Brand" asp-action="Index">
+                            <i class="fas fa-industry me-2 text-warning"></i> Thương hiệu
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="User" asp-action="Index">
+                            <i class="fas fa-user-friends me-2 text-info"></i> Người dùng
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Role" asp-action="Index">
+                            <i class="fas fa-user-shield me-2 text-danger"></i> Vai trò
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Order" asp-action="Index">
+                            <i class="fas fa-shopping-cart me-2 text-success"></i> Đơn hàng
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Coupon" asp-action="Index">
+                            <i class="fas fa-ticket-alt me-2 text-danger"></i> Mã giảm giá
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="Admin" asp-controller="News" asp-action="Index">
+                            <i class="fas fa-newspaper"></i> Tin tức
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Contact" asp-action="Index">
+                            <i class="fas fa-address-book me-2 text-warning"></i> Liên hệ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ContactMessages" asp-action="Index">
+                            <i class="fas fa-comments"></i> Tin nhắn liên hệ
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main -->
+            <div class="col-md-10 main-content">
+                @Html.Partial("_NotificationPartial")
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            &copy; 2025 Tiệm đồ chơi của Di - Khu vực Quản trị
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Custom JS -->
+    <script src="~/js/main.js"></script>
+
+    <script>
+        $(function () {
+            var message = '@TempData["success"]';
+            if (message) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: @Html.Raw(Json.Serialize(TempData["success"])),
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        });
+
+        $(document).ready(function () {
+            $('#myTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+            });
+        });
+    </script>
+    @* <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script> *@
+
+    @await RenderSectionAsync("Scripts", required: false)
+    @* @RenderSection("Scripts", required: false) *@
+</body>
+</html>

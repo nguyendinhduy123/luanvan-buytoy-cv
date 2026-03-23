@@ -1,0 +1,113 @@
+﻿@model ProductModel
+@{
+    ViewData["title"] = "Thêm sản phẩm mới";
+}
+
+<h3 class="mb-4">Thêm sản phẩm mới</h3>
+
+<div class="col-md-9">
+    <form asp-action="Create" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <!-- Tên sản phẩm -->
+        <div class="form-group">
+            <label>Tên sản phẩm</label>
+            <input asp-for="Name" class="form-control" placeholder="Nhập tên sản phẩm" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <!-- Mô tả ngắn -->
+        <div class="form-group">
+            <label>Mô tả ngắn</label>
+            <input asp-for="ShortDescription" class="form-control" placeholder="Tóm tắt mô tả ngắn về sản phẩm" />
+            <span asp-validation-for="ShortDescription" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+    <label>Tuổi tối thiểu</label>
+    <input asp-for="MinAge" class="form-control" />
+    <span asp-validation-for="MinAge" class="text-danger"></span>
+</div>
+
+<div class="form-group">
+    <label>Tuổi tối đa</label>
+    <input asp-for="MaxAge" class="form-control" />
+    <span asp-validation-for="MaxAge" class="text-danger"></span>
+</div>
+
+        <!-- Giá -->
+        <div class="form-group">
+            <label>Giá</label>
+            <input asp-for="Price" pattern="[0-9.,]+" class="form-control typing-price" placeholder="VD: 150000" />
+            <span id="price-convert" class="text-muted small"></span>
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+
+        <!-- Mô tả chi tiết -->
+        <div class="form-group">
+            <label>Mô tả chi tiết</label>
+            <textarea asp-for="Description" class="form-control" placeholder="Mô tả chi tiết sản phẩm..."></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <!-- Danh mục -->
+        <div class="form-group">
+            <label>Danh mục</label>
+            <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
+                <option>-- Chọn danh mục --</option>
+            </select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+
+        <!-- Thương hiệu -->
+        <div class="form-group">
+            <label>Thương hiệu</label>
+            <select asp-for="BrandId" class="form-control" asp-items="ViewBag.Brands">
+                <option>-- Chọn thương hiệu --</option>
+            </select>
+            <span asp-validation-for="BrandId" class="text-danger"></span>
+        </div>
+
+        <!-- Ảnh sản phẩm -->
+        <div class="form-group">
+            <label>Ảnh sản phẩm</label>
+            <input asp-for="ImageUpload" class="form-control" accept=".jpg,.jpeg,.png" />
+            <span asp-validation-for="ImageUpload" class="text-danger"></span>
+            <img id="imgpreview" class="pt-2" style="max-height: 200px;" />
+        </div>
+
+        <!-- Nút Submit -->
+        <div class="form-group mt-3">
+            <button class="btn btn-primary">Thêm sản phẩm</button>
+        </div>
+    </form>
+
+    <a asp-action="Index">← Quay lại danh sách sản phẩm</a>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+
+    <script>
+        // Xem trước ảnh tải lên
+        $("#ImageUpload").change(function () {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imgpreview').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(this.files[0]);
+        });
+
+        // Cấu hình CKEditor hỗ trợ tiếng Việt
+        CKEDITOR.replace('Description', {
+            language: 'vi',
+            contentsLanguage: 'vi',
+            font_names: 'Arial;Times New Roman;Verdana;Tahoma',
+            defaultLanguage: 'vi',
+            entities_latin: false,
+            entities_greek: false
+        });
+    </script>
+}

@@ -1,0 +1,39 @@
+﻿@model IEnumerable<buytoy.Models.test>
+@{
+    ViewData["Title"] = "Test";
+}
+
+<h2 class="text-primary">Test</h2>
+
+<a class="btn btn-primary mb-3" asp-action="Create" asp-controller="test">test thêm</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Create</th>
+            <th>Update</th>
+            <th>Delete</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td>@item.Create</td>
+                <td>@item.Update</td>
+                <td>@item.Delete</td>
+                <td>
+                    <a class="btn btn-warning btn-sm" asp-action="Edit" asp-route-id="@item.Id">Sửa</a>
+                    <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.Id">Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

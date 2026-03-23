@@ -1,0 +1,318 @@
+﻿@model IEnumerable<ProductModel>
+@{
+    ViewData["Title"] = "Sản phẩm theo thương hiệu";
+    var currentUrl = Url.ActionContext.HttpContext.Request.Path;
+}
+<style>
+    .product-image-wrapper {
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 30px;
+        background: #fff;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+        .product-image-wrapper:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+    .productinfo img {
+        max-height: 220px;
+        object-fit: contain;
+        margin-bottom: 15px;
+        transition: transform 0.3s ease;
+    }
+
+    .productinfo:hover img {
+        transform: scale(1.05);
+    }
+
+    .productinfo h2 {
+        font-size: 18px;
+        color: #28a745;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .productinfo p {
+        font-size: 14px;
+        color: #444;
+        margin: 4px 0;
+    }
+
+    .add-to-cart {
+        margin-top: 10px;
+        background-color: #fe980f;
+        color: white;
+        font-weight: 500;
+        border: none;
+        transition: background-color 0.2s ease;
+    }
+
+        .add-to-cart:hover {
+            background-color: #ec7c05;
+        }
+
+    .choose {
+        border-top: 1px solid #eee;
+        padding-top: 10px;
+    }
+
+        .choose .action-links {
+            display: flex;
+            justify-content: space-around;
+            padding: 5px 0;
+        }
+
+            .choose .action-links a {
+                display: flex;
+                align-items: center;
+                font-size: 14px;
+                color: #444;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+                .choose .action-links a i {
+                    margin-right: 6px;
+                    color: #fe980f;
+                    font-size: 16px;
+                }
+
+                .choose .action-links a:hover {
+                    color: #28a745;
+                }
+
+    .title {
+        font-weight: bold;
+        font-size: 26px;
+        margin-bottom: 30px;
+        color: #fe980f;
+        text-align: center;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            @Html.Partial("_SidebarPartial")
+        </div>
+
+        <div class="col-md-9">
+            <div class="filter-box shadow-sm mb-4">
+                <div class="row g-3">
+                    <!-- Sắp xếp -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-muted">🔽 Sắp xếp theo</label>
+                        <select class="form-select" id="sort_by">
+                            <option value="">-- Chọn sắp xếp --</option>
+                            <option value="@currentUrl?sort_by=price_increase">Giá tăng dần</option>
+                            <option value="@currentUrl?sort_by=price_decrease">Giá giảm dần</option>
+                            <option value="@currentUrl?sort_by=price_newest">Mới nhất</option>
+                            <option value="@currentUrl?sort_by=price_oldest">Cũ nhất</option>
+                        </select>
+                    </div>
+
+                    <!-- Lọc giá -->
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold text-muted">💰 Lọc theo khoảng giá</label>
+                        <input type="text" id="amount" readonly class="form-control border-0 bg-transparent text-success fw-bold mb-2" />
+                        <div id="slider-range"></div>
+                        <button type="button" class="btn btn-outline-success mt-2 btn-locgia" data-current_url="@currentUrl">
+                            🔍 Lọc giá
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <h2 class="title">Sản phẩm theo thương hiệu</h2>
+            <div class="row">
+                @foreach (var item in Model ?? new List<ProductModel>())
+                {
+                    var imageUrl = !string.IsNullOrEmpty(item.Image)
+                    ? Url.Content($"~/media/products/{item.Image}")
+                    : Url.Content("~/media/no-image.png");
+
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="product-image-wrapper shadow-sm">
+                            <div class="single-products">
+                                <div class="productinfo text-center">
+                                    <a asp-action="Details" asp-controller="Product" asp-route-id="@item.Id">
+                                        <img src="@imageUrl" alt="@item.Name" class="img-fluid rounded" />
+                                        <h2>@item.Price.ToString("N0") ₫</h2>
+                                        <p><strong>@item.Name</strong></p>
+                                        <p>Danh mục: <em>@(item.Category?.Name ?? "Chưa có")</em></p>
+                                        <p>Thương hiệu: <em>@(item.Brand?.Name ?? "Chưa có")</em></p>
+                                    </a>
+
+                                    @if (item.Quantity > 0)
+                                    {
+                                        <span class="badge bg-success">Còn hàng</span>
+                                        <button data-product_id="@item.Id" class="btn add-to-cart mt-2">
+                                            <i class="fa fa-shopping-cart me-1"></i> Thêm vào giỏ
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Hết hàng</span>
+                                        <button class="btn btn-secondary mt-2" disabled>
+                                            <i class="fa fa-ban me-1"></i> Hết hàng
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                            <div class="choose mt-3">
+                                <div class="action-links">
+                                    <a href="#" class="add-to-wishlist" data-product_id="@item.Id" data-name="@item.Name">
+                                        <i class="fa fa-heart"></i> Yêu thích
+                                    </a>
+                                    <a href="#" class="add-to-compare" data-product_id="@item.Id" data-name="@item.Name">
+                                        <i class="fa fa-balance-scale"></i> So sánh
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+
+            $('.add-to-cart').click(function (e) {
+                e.preventDefault();
+                var productId = $(this).data("product_id");
+
+                $.post("@Url.Action("Add", "Cart")", { Id: productId })
+                    .done(function () {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đã thêm vào giỏ hàng!',
+                            text: 'Sản phẩm đã được thêm thành công.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    })
+                    .fail(function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: 'Không thể thêm sản phẩm. Vui lòng thử lại.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    });
+            });
+
+            $('.add-to-wishlist').click(function (e) {
+                e.preventDefault();
+                const id = $(this).data("product_id");
+                const name = $(this).data("name");
+                let wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+
+                if (!wishlist.includes(id)) {
+                    wishlist.push(id);
+                    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã thêm yêu thích!',
+                        text: `${name} đã được thêm vào danh sách yêu thích.`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Đã tồn tại!',
+                        text: 'Sản phẩm đã có trong danh sách yêu thích.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+
+            $('.add-to-compare').click(function (e) {
+                e.preventDefault();
+                const id = $(this).data("product_id");
+                const name = $(this).data("name");
+                let compare = JSON.parse(localStorage.getItem("compare") || "[]");
+
+                if (!compare.includes(id)) {
+                    if (compare.length >= 3) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Giới hạn 3 sản phẩm!',
+                            text: 'Chỉ có thể so sánh tối đa 3 sản phẩm.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        return;
+                    }
+                    compare.push(id);
+                    localStorage.setItem("compare", JSON.stringify(compare));
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã thêm so sánh!',
+                        text: `${name} đã được thêm vào danh sách so sánh.`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Đã tồn tại!',
+                        text: 'Sản phẩm đã có trong danh sách so sánh.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        });
+    </script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Khởi tạo slider lọc giá
+            $("#slider-range").slider({
+            range: true,
+            min: 0,
+            max: 100000000, // Giá tối đa tự đặt
+            step: 50000,
+            values: [100000, 800000], // Giá trị mặc định khi vào trang
+            slide: function (event, ui) {
+                $("#amount").val("đ" + ui.values[0].toLocaleString('vi-VN') + " - đ" + ui.values[1].toLocaleString('vi-VN'));
+            }
+        });
+            $("#amount").val(
+                "đ" + $("#slider-range").slider("values", 0).toLocaleString('vi-VN') +
+                " - đ" + $("#slider-range").slider("values", 1).toLocaleString('vi-VN')
+            );
+
+            // Lọc theo giá
+            $('.btn-locgia').on('click', function () {
+                var url = $(this).data("current_url");
+                if (url) {
+                    window.location = url + "?startprice=" + $("#slider-range").slider("values", 0)
+                        + "&endprice=" + $("#slider-range").slider("values", 1);
+                }
+            });
+
+            // Sắp xếp
+            $('#sort_by').on('change', function () {
+                var url = $(this).val();
+                if (url) {
+                    window.location = url;
+                }
+            });
+        });
+    </script>
+}

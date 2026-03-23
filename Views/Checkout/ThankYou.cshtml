@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Cảm ơn bạn";
+}
+
+<div class="container py-5 text-center">
+    <h2 class="text-success">🎉 Cảm ơn bạn đã đặt hàng!</h2>
+    <p>Chúng tôi đã nhận được đơn hàng của bạn.</p>
+
+    @if (TempData["success"] != null)
+    {
+        <div class="alert alert-success mt-3">
+            @TempData["success"]
+        </div>
+    }
+
+    <a href="/" class="btn btn-primary mt-3"><i class="fa fa-home"></i> Về trang chủ</a>
+</div>

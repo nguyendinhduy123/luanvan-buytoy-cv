@@ -1,0 +1,29 @@
+﻿@{
+    var currentUrl = Url.ActionContext.HttpContext.Request.Path;
+}
+
+<div class="filter-box shadow-sm mb-4">
+    <div class="row g-3">
+        <!-- Sắp xếp -->
+        <div class="col-md-4">
+            <label class="form-label fw-semibold text-muted">🔽 Sắp xếp theo</label>
+            <select class="form-select" id="sort_by">
+                <option value="">-- Chọn sắp xếp --</option>
+                <option value="@currentUrl?sort_by=price_increase">Giá tăng dần</option>
+                <option value="@currentUrl?sort_by=price_decrease">Giá giảm dần</option>
+                <option value="@currentUrl?sort_by=price_newest">Mới nhất</option>
+                <option value="@currentUrl?sort_by=price_oldest">Cũ nhất</option>
+            </select>
+        </div>
+
+        <!-- Lọc giá -->
+        <div class="col-md-8">
+            <label class="form-label fw-semibold text-muted">💰 Lọc theo khoảng giá</label>
+            <input type="text" id="amount" readonly class="form-control border-0 bg-transparent text-success fw-bold mb-2" />
+            <div id="slider-range"></div>
+            <button type="button" class="btn btn-outline-success mt-2 btn-locgia" data-current_url="@currentUrl">
+                🔍 Lọc giá
+            </button>
+        </div>
+    </div>
+</div>
